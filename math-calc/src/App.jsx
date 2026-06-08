@@ -1,0 +1,24 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Navbar from './components/layout/Navbar';
+import Home from './pages/Home';
+import MatrixCalculator from './pages/MatrixCalculator';
+import CalcCalculator from './pages/CalcCalculator';
+import GraphicsCalculator from './pages/GraphicsCalculator';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div className="flex flex-col min-h-screen" style={{ background: '#0a0e1a' }}>
+        <Navbar />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/matrix" element={<MatrixCalculator />} />
+            <Route path="/calculus" element={<CalcCalculator />} />
+            <Route path="/graphics" element={<GraphicsCalculator />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
+  );
+}
