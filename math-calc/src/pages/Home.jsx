@@ -60,12 +60,12 @@ export default function Home() {
                 {card.tags.map(tag => (
                   <span key={tag} style={{
                     fontSize: 11, padding: '3px 8px', borderRadius: 4,
-                    background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe',
+                    background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0',
                     fontFamily: 'JetBrains Mono, monospace',
                   }}>{tag}</span>
                 ))}
               </div>
-              <span style={{ fontSize: 13, color: '#2563eb', marginTop: 6 }}>열기 →</span>
+              <span style={{ fontSize: 13, color: '#16a34a', marginTop: 6 }}>열기 →</span>
             </div>
           </Link>
         ))}

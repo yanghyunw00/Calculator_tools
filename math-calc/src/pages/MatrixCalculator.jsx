@@ -76,9 +76,9 @@ export default function MatrixCalculator() {
             style={{
               padding: '7px 16px', borderRadius: 6, fontSize: 13,
               fontFamily: 'Arial, sans-serif', cursor: 'pointer',
-              border: mode === m ? '1px solid #2563eb' : '1px solid #cccccc',
-              background: mode === m ? '#eff6ff' : '#ffffff',
-              color: mode === m ? '#2563eb' : '#333333',
+              border: mode === m ? '1px solid #16a34a' : '1px solid #cccccc',
+              background: mode === m ? '#f0fdf4' : '#ffffff',
+              color: mode === m ? '#16a34a' : '#333333',
               fontWeight: mode === m ? 600 : 400,
             }}>
             {label}
@@ -140,7 +140,7 @@ export default function MatrixCalculator() {
       {/* Result */}
       {result && (
         <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#2563eb' }}>결과</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>결과</span>
           <div style={{ overflowX: 'auto', textAlign: 'center' }}>
             <BlockMath math={result.latex} />
           </div>

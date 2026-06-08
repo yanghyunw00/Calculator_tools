@@ -26,8 +26,8 @@ export default function Navbar() {
               padding: '5px 12px',
               borderRadius: 5,
               fontSize: 14,
-              color: pathname === to ? '#2563eb' : '#444444',
-              background: pathname === to ? '#eff6ff' : 'transparent',
+              color: pathname === to ? '#16a34a' : '#444444',
+              background: pathname === to ? '#f0fdf4' : 'transparent',
               fontWeight: pathname === to ? 600 : 400,
             }}>
               {label}
@@ -49,8 +49,8 @@ export default function Navbar() {
               padding: '8px 12px',
               borderRadius: 5,
               fontSize: 14,
-              color: pathname === to ? '#2563eb' : '#444444',
-              background: pathname === to ? '#eff6ff' : 'transparent',
+              color: pathname === to ? '#16a34a' : '#444444',
+              background: pathname === to ? '#f0fdf4' : 'transparent',
             }}>
               {label}
             </Link>

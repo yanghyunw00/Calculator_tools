@@ -27,9 +27,9 @@ export default function MatrixOps({ activeOp, onSelect, mode = 'single' }) {
             fontSize: 13,
             fontFamily: 'Arial, sans-serif',
             cursor: 'pointer',
-            border: activeOp === op.id ? '1px solid #2563eb' : '1px solid #cccccc',
-            background: activeOp === op.id ? '#eff6ff' : '#ffffff',
-            color: activeOp === op.id ? '#2563eb' : '#333333',
+            border: activeOp === op.id ? '1px solid #16a34a' : '1px solid #cccccc',
+            background: activeOp === op.id ? '#f0fdf4' : '#ffffff',
+            color: activeOp === op.id ? '#16a34a' : '#333333',
             fontWeight: activeOp === op.id ? 600 : 400,
           }}>
           {op.label}

@@ -6,7 +6,7 @@ const Slider = ({ label, value, min, max, step = 0.1, onChange }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
       <span style={{ fontSize: 12, color: '#444444' }}>{label}</span>
-      <span style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: '#2563eb', minWidth: 46, textAlign: 'right' }}>
+      <span style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: '#16a34a', minWidth: 46, textAlign: 'right' }}>
         {Number(value).toFixed(2)}
       </span>
     </div>
@@ -16,7 +16,7 @@ const Slider = ({ label, value, min, max, step = 0.1, onChange }) => (
 );
 
 const SectionLabel = ({ children }) => (
-  <div style={{ fontSize: 11, fontWeight: 700, color: '#2563eb', marginTop: 8, marginBottom: 2, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+  <div style={{ fontSize: 11, fontWeight: 700, color: '#16a34a', marginTop: 8, marginBottom: 2, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
     {children}
   </div>
 );
@@ -25,9 +25,9 @@ const ToggleBtn = ({ active, onClick, children }) => (
   <button onClick={onClick} style={{
     padding: '6px 14px', borderRadius: 6, fontSize: 13, cursor: 'pointer',
     fontFamily: 'Arial, sans-serif',
-    border: active ? '1px solid #2563eb' : '1px solid #cccccc',
-    background: active ? '#eff6ff' : '#ffffff',
-    color: active ? '#2563eb' : '#444444',
+    border: active ? '1px solid #16a34a' : '1px solid #cccccc',
+    background: active ? '#f0fdf4' : '#ffffff',
+    color: active ? '#16a34a' : '#444444',
     fontWeight: active ? 600 : 400,
   }}>
     {children}
@@ -169,7 +169,7 @@ export default function GraphicsCalculator() {
                     background: '#f5f5f5', border: '1px solid #e0e0e0',
                     fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: '#333333'
                   }}>
-                    <span style={{ color: '#2563eb', fontWeight: 700 }}>v{idx}</span><br />
+                    <span style={{ color: '#16a34a', fontWeight: 700 }}>v{idx}</span><br />
                     {coords}
                   </div>
                 ))}

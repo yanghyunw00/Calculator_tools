@@ -72,9 +72,9 @@ export default function CalcCalculator() {
             style={{
               padding: '7px 16px', borderRadius: 6, fontSize: 13,
               fontFamily: 'Arial, sans-serif', cursor: 'pointer',
-              border: op === o.id ? '1px solid #2563eb' : '1px solid #cccccc',
-              background: op === o.id ? '#eff6ff' : '#ffffff',
-              color: op === o.id ? '#2563eb' : '#333333',
+              border: op === o.id ? '1px solid #16a34a' : '1px solid #cccccc',
+              background: op === o.id ? '#f0fdf4' : '#ffffff',
+              color: op === o.id ? '#16a34a' : '#333333',
               fontWeight: op === o.id ? 600 : 400,
             }}>
             {o.label}
@@ -184,7 +184,7 @@ export default function CalcCalculator() {
 
       {result && (
         <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#2563eb' }}>결과</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>결과</span>
           <div style={{ overflowX: 'auto', textAlign: 'center' }}>
             <BlockMath math={result.latex} />
           </div>

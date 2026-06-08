@@ -17,7 +17,7 @@ export default function StepByStep({ steps = [] }) {
         <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
           {steps.map((step, i) => (
             <div key={i}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#2563eb', marginBottom: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>
                 {step.label}
               </div>
               {step.latex && (

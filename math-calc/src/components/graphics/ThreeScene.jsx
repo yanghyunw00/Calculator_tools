@@ -25,7 +25,7 @@ function makeNumberSprite(n) {
   const canvas = document.createElement('canvas');
   canvas.width = 64; canvas.height = 64;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#1d4ed8';
+  ctx.fillStyle = '#15803d';
   ctx.beginPath();
   ctx.arc(32, 32, 27, 0, Math.PI * 2);
   ctx.fill();
@@ -85,7 +85,7 @@ export default function ThreeScene({ modelMat, showVertices, showNormals, frustu
     // Cube fill (semi-transparent)
     const solid = new THREE.Mesh(
       cubeGeo.clone(),
-      new THREE.MeshBasicMaterial({ color: 0x2563eb, transparent: true, opacity: 0.07, side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ color: 0x16a34a, transparent: true, opacity: 0.07, side: THREE.DoubleSide })
     );
     solid.matrixAutoUpdate = false;
     scene.add(solid);
