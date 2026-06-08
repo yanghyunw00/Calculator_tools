@@ -20,9 +20,15 @@ export default function MatrixCalculator() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const swapAB = () => {
+    setGridA(gridB);
+    setGridB(gridA);
+    setResult(null);
+  };
+
   const calculate = async () => {
     setLoading(true); setError(''); setResult(null);
-    await new Promise(r => setTimeout(r, 80));
+    await new Promise(r => setTimeout(r, 60));
     try {
       const A = parseMatrix(gridA);
       const B = parseMatrix(gridB);
@@ -56,72 +62,90 @@ export default function MatrixCalculator() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col gap-6">
+    <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Title */}
       <div>
-        <h1 className="text-3xl font-bold gradient-text mb-1" style={{ fontFamily: 'Sora,sans-serif' }}>
-          행렬 계산기
-        </h1>
-        <p className="text-sm" style={{ color: '#64748b', fontFamily: 'Sora,sans-serif' }}>
-          단계별 풀이와 함께하는 고급 행렬 연산
-        </p>
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>행렬 계산기</h1>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>단계별 풀이 포함</p>
       </div>
 
       {/* Mode toggle */}
-      <div className="flex gap-2">
-        {['single', 'dual'].map(m => (
+      <div style={{ display: 'flex', gap: 6 }}>
+        {[['single', '단일 행렬 (A)'], ['dual', '두 행렬 (A, B)']].map(([m, label]) => (
           <button key={m} onClick={() => { setMode(m); setOp(m === 'single' ? 'det' : 'multiply'); setResult(null); }}
-            className="px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
             style={{
-              fontFamily: 'Sora,sans-serif',
-              background: mode === m ? 'linear-gradient(135deg,#00d4ff,#7c3aed)' : '#1a2540',
-              color: mode === m ? 'white' : '#94a3b8',
-              border: mode === m ? 'none' : '1px solid #2d3a5e',
+              padding: '7px 16px', borderRadius: 6, fontSize: 13,
+              fontFamily: 'Arial, sans-serif', cursor: 'pointer',
+              border: mode === m ? '1px solid #2563eb' : '1px solid #cccccc',
+              background: mode === m ? '#eff6ff' : '#ffffff',
+              color: mode === m ? '#2563eb' : '#333333',
+              fontWeight: mode === m ? 600 : 400,
             }}>
-            {m === 'single' ? '단일 행렬 연산' : '두 행렬 연산 (A, B)'}
+            {label}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <MatrixGrid label="행렬 A" grid={gridA} onChange={setGridA} />
-        {mode === 'dual' && <MatrixGrid label="행렬 B" grid={gridB} onChange={setGridB} />}
+      {/* Matrix inputs */}
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        <div className="calc-card" style={{ padding: 16, flex: '1 1 300px' }}>
+          <MatrixGrid label="행렬 A" grid={gridA} onChange={g => { setGridA(g); setResult(null); }} />
+        </div>
+
+        {mode === 'dual' && (
+          <>
+            {/* Swap button */}
+            <div style={{ display: 'flex', alignItems: 'center', paddingTop: 40 }}>
+              <button onClick={swapAB} className="btn-secondary"
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '8px 12px', fontSize: 18, lineHeight: 1 }}
+                title="A ↔ B 교환">
+                <span>⇄</span>
+                <span style={{ fontSize: 10, color: '#888888' }}>교환</span>
+              </button>
+            </div>
+
+            <div className="calc-card" style={{ padding: 16, flex: '1 1 300px' }}>
+              <MatrixGrid label="행렬 B" grid={gridB} onChange={g => { setGridB(g); setResult(null); }} />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Operations */}
-      <div className="calc-card p-4 flex flex-col gap-3">
-        <span className="text-sm font-semibold" style={{ color: '#94a3b8', fontFamily: 'Sora,sans-serif' }}>연산 선택</span>
+      <div className="calc-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#444444' }}>연산 선택</span>
         <MatrixOps activeOp={op} onSelect={o => { setOp(o); setResult(null); }} mode={mode} />
+
         {op === 'power' && mode === 'single' && (
-          <div className="flex items-center gap-3">
-            <span className="text-sm" style={{ color: '#94a3b8' }}>n =</span>
-            <input type="number" value={power} onChange={e => setPower(Number(e.target.value))}
-              className="calc-input w-24 text-center" style={{ fontFamily: 'JetBrains Mono,monospace' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+            <span style={{ fontSize: 13, color: '#444444' }}>n =</span>
+            <input type="number" value={power}
+              onChange={e => setPower(Number(e.target.value))}
+              className="calc-input" style={{ width: 80, textAlign: 'center' }} />
           </div>
         )}
       </div>
 
-      <button onClick={calculate} disabled={loading}
-        className="btn-primary px-8 py-3 text-base font-semibold flex items-center justify-center gap-3 self-start">
-        {loading ? <><span className="spinner" />계산 중...</> : '계산하기 →'}
-      </button>
+      {/* Calculate button */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <button onClick={calculate} disabled={loading} className="btn-primary"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 32px', fontSize: 14 }}>
+          {loading ? <><span className="spinner" /> 계산 중...</> : '계산하기'}
+        </button>
+      </div>
 
-      {error && (
-        <div className="p-4 rounded-xl text-sm flex items-start gap-3"
-          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5', fontFamily: 'Sora,sans-serif' }}>
-          <span>⚠</span> {error}
-        </div>
-      )}
+      {/* Error */}
+      {error && <div className="error-box">⚠ {error}</div>}
 
+      {/* Result */}
       {result && (
-        <>
-          <div className="calc-card p-5 flex flex-col gap-3">
-            <span className="text-sm font-semibold" style={{ color: '#00d4ff', fontFamily: 'Sora,sans-serif' }}>결과</span>
-            <div className="overflow-x-auto">
-              <BlockMath math={result.latex} />
-            </div>
+        <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#2563eb' }}>결과</span>
+          <div style={{ overflowX: 'auto', textAlign: 'center' }}>
+            <BlockMath math={result.latex} />
           </div>
           <StepByStep steps={result.steps} />
-        </>
+        </div>
       )}
     </div>
   );

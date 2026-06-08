@@ -1,41 +1,38 @@
 const singleOps = [
-  { id: 'det', label: '행렬식 (det)', icon: '|A|' },
-  { id: 'inv', label: '역행렬', icon: 'A⁻¹' },
-  { id: 'transpose', label: '전치', icon: 'Aᵀ' },
-  { id: 'rank', label: '계수 (rank)', icon: 'rank' },
-  { id: 'power', label: '거듭제곱', icon: 'Aⁿ' },
-  { id: 'lu', label: 'LU 분해', icon: 'LU' },
-  { id: 'eigen', label: '고유값/벡터', icon: 'λv' },
-  { id: 'svd', label: 'SVD', icon: 'UΣVᵀ' },
+  { id: 'det', label: '행렬식' },
+  { id: 'inv', label: '역행렬' },
+  { id: 'transpose', label: '전치' },
+  { id: 'rank', label: '계수(rank)' },
+  { id: 'power', label: '거듭제곱 Aⁿ' },
+  { id: 'lu', label: 'LU 분해' },
+  { id: 'eigen', label: '고유값/벡터' },
+  { id: 'svd', label: 'SVD' },
 ];
 
 const dualOps = [
-  { id: 'multiply', label: 'A × B', icon: '×' },
-  { id: 'add', label: 'A + B', icon: '+' },
-  { id: 'subtract', label: 'A - B', icon: '-' },
+  { id: 'multiply', label: 'A × B' },
+  { id: 'add', label: 'A + B' },
+  { id: 'subtract', label: 'A − B' },
 ];
 
 export default function MatrixOps({ activeOp, onSelect, mode = 'single' }) {
   const ops = mode === 'single' ? singleOps : dualOps;
   return (
-    <div className="flex flex-wrap gap-2">
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
       {ops.map(op => (
-        <button
-          key={op.id}
-          onClick={() => onSelect(op.id)}
-          className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200"
+        <button key={op.id} onClick={() => onSelect(op.id)}
           style={{
-            fontFamily: 'JetBrains Mono,monospace',
-            background: activeOp === op.id
-              ? 'linear-gradient(135deg,rgba(0,212,255,0.15),rgba(124,58,237,0.15))'
-              : '#1a2540',
-            border: activeOp === op.id ? '1px solid rgba(0,212,255,0.5)' : '1px solid #2d3a5e',
-            color: activeOp === op.id ? '#00d4ff' : '#94a3b8',
-            minWidth: 72,
-          }}
-        >
-          <span className="font-bold text-base">{op.icon}</span>
-          <span style={{ fontSize: 10 }}>{op.label}</span>
+            padding: '7px 14px',
+            borderRadius: 6,
+            fontSize: 13,
+            fontFamily: 'Arial, sans-serif',
+            cursor: 'pointer',
+            border: activeOp === op.id ? '1px solid #2563eb' : '1px solid #cccccc',
+            background: activeOp === op.id ? '#eff6ff' : '#ffffff',
+            color: activeOp === op.id ? '#2563eb' : '#333333',
+            fontWeight: activeOp === op.id ? 600 : 400,
+          }}>
+          {op.label}
         </button>
       ))}
     </div>

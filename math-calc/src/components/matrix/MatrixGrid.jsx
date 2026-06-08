@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 export default function MatrixGrid({ label, grid, onChange }) {
   const rows = grid.length;
   const cols = grid[0].length;
@@ -10,73 +8,52 @@ export default function MatrixGrid({ label, grid, onChange }) {
     onChange(next);
   };
 
-  const addRow = () => {
-    if (rows >= 8) return;
-    onChange([...grid, Array(cols).fill('')]);
-  };
-  const removeRow = () => {
-    if (rows <= 1) return;
-    onChange(grid.slice(0, -1));
-  };
-  const addCol = () => {
-    if (cols >= 8) return;
-    onChange(grid.map(row => [...row, '']));
-  };
-  const removeCol = () => {
-    if (cols <= 1) return;
-    onChange(grid.map(row => row.slice(0, -1)));
-  };
+  const addRow = () => { if (rows < 8) onChange([...grid, Array(cols).fill('')]); };
+  const removeRow = () => { if (rows > 1) onChange(grid.slice(0, -1)); };
+  const addCol = () => { if (cols < 8) onChange(grid.map(row => [...row, ''])); };
+  const removeCol = () => { if (cols > 1) onChange(grid.map(row => row.slice(0, -1))); };
+  const fillIdentity = () => onChange(grid.map((row, r) => row.map((_, c) => r === c ? '1' : '0')));
+  const fillRandom = () => onChange(grid.map(row => row.map(() => String(Math.floor(Math.random() * 9) - 4))));
+  const fillZero = () => onChange(grid.map(row => row.map(() => '0')));
 
-  const fillIdentity = () => {
-    const n = Math.min(rows, cols);
-    onChange(grid.map((row, r) => row.map((_, c) => r === c && r < n ? '1' : '0')));
-  };
-
-  const fillRandom = () => {
-    onChange(grid.map(row => row.map(() => String(Math.floor(Math.random() * 9) - 4))));
-  };
-
-  const cellSize = cols <= 4 ? 60 : cols <= 6 ? 52 : 44;
+  const cellW = cols <= 4 ? 58 : cols <= 6 ? 50 : 42;
 
   return (
-    <div className="calc-card p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className="font-bold text-lg gradient-text" style={{ fontFamily: 'JetBrains Mono,monospace' }}>
-          {label}
-        </span>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs" style={{ color: '#64748b' }}>{rows}×{cols}</span>
-          <button onClick={fillRandom} className="btn-secondary text-xs px-3 py-1">Random</button>
-          <button onClick={fillIdentity} className="btn-secondary text-xs px-3 py-1">Identity</button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+        <span style={{ fontWeight: 700, fontSize: 15, color: '#111111' }}>{label}</span>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <button onClick={fillRandom} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>랜덤</button>
+          <button onClick={fillIdentity} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>단위행렬</button>
+          <button onClick={fillZero} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>초기화</button>
         </div>
       </div>
 
-      {/* Row controls */}
-      <div className="flex items-start gap-2">
-        <div className="flex flex-col gap-1 mt-1">
-          <button onClick={addRow} disabled={rows >= 8}
-            className="btn-secondary w-7 h-7 flex items-center justify-center text-sm font-bold"
-            style={{ borderRadius: '6px' }}>+</button>
-          <button onClick={removeRow} disabled={rows <= 1}
-            className="btn-secondary w-7 h-7 flex items-center justify-center text-sm font-bold"
-            style={{ borderRadius: '6px' }}>-</button>
+      {/* Size info */}
+      <span style={{ fontSize: 12, color: '#888888' }}>{rows}×{cols}</span>
+
+      {/* Grid with row controls */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+        {/* Row +/- */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, paddingTop: 2 }}>
+          <button onClick={addRow} disabled={rows >= 8} className="btn-secondary"
+            style={{ width: 26, height: 26, padding: 0, textAlign: 'center', fontSize: 16, lineHeight: 1 }}>+</button>
+          <button onClick={removeRow} disabled={rows <= 1} className="btn-secondary"
+            style={{ width: 26, height: 26, padding: 0, textAlign: 'center', fontSize: 16, lineHeight: 1 }}>−</button>
         </div>
 
         {/* Grid */}
-        <div className="flex-1 overflow-x-auto">
-          <div className="flex flex-col gap-1" style={{ display: 'inline-flex' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 4 }}>
             {grid.map((row, r) => (
-              <div key={r} className="flex gap-1">
+              <div key={r} style={{ display: 'flex', gap: 4 }}>
                 {row.map((cell, c) => (
-                  <input
-                    key={c}
-                    type="text"
-                    value={cell}
+                  <input key={c} type="text" value={cell}
                     onChange={e => updateCell(r, c, e.target.value)}
                     className="matrix-cell"
-                    style={{ width: cellSize, height: 36, fontSize: 14 }}
-                    placeholder="0"
-                  />
+                    style={{ width: cellW, height: 34 }}
+                    placeholder="0" />
                 ))}
               </div>
             ))}
@@ -84,15 +61,13 @@ export default function MatrixGrid({ label, grid, onChange }) {
         </div>
       </div>
 
-      {/* Col controls */}
-      <div className="flex items-center gap-2 pl-9">
-        <button onClick={addCol} disabled={cols >= 8}
-          className="btn-secondary w-7 h-7 flex items-center justify-center text-sm font-bold"
-          style={{ borderRadius: '6px' }}>+</button>
-        <button onClick={removeCol} disabled={cols <= 1}
-          className="btn-secondary w-7 h-7 flex items-center justify-center text-sm font-bold"
-          style={{ borderRadius: '6px' }}>-</button>
-        <span className="text-xs" style={{ color: '#64748b' }}>열 추가/삭제</span>
+      {/* Col +/- */}
+      <div style={{ display: 'flex', gap: 4, alignItems: 'center', paddingLeft: 34 }}>
+        <button onClick={addCol} disabled={cols >= 8} className="btn-secondary"
+          style={{ width: 26, height: 26, padding: 0, textAlign: 'center', fontSize: 16, lineHeight: 1 }}>+</button>
+        <button onClick={removeCol} disabled={cols <= 1} className="btn-secondary"
+          style={{ width: 26, height: 26, padding: 0, textAlign: 'center', fontSize: 16, lineHeight: 1 }}>−</button>
+        <span style={{ fontSize: 12, color: '#888888' }}>열</span>
       </div>
     </div>
   );

@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/matrix', label: '행렬 계산기' },
-  { to: '/calculus', label: '미적분 계산기' },
+  { to: '/matrix', label: '행렬' },
+  { to: '/calculus', label: '미적분' },
   { to: '/graphics', label: '3D 그래픽스' },
 ];
 
@@ -13,59 +13,45 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav style={{ background: '#080c18', borderBottom: '1px solid #1e2d4a' }}
-      className="sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
-        <Link to="/" className="flex items-center gap-2 no-underline">
-          <span className="text-2xl">∑</span>
-          <span className="font-bold text-lg gradient-text" style={{ fontFamily: 'Sora,sans-serif' }}>
-            MathCalc
-          </span>
+    <nav style={{ background: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 16px', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link to="/" style={{ textDecoration: 'none', fontWeight: 700, fontSize: 16, color: '#111111' }}>
+          MathCalc
         </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex" style={{ gap: 4 }}>
           {navLinks.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className="no-underline px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-              style={{
-                fontFamily: 'Sora,sans-serif',
-                color: pathname === to ? '#00d4ff' : '#94a3b8',
-                background: pathname === to ? 'rgba(0,212,255,0.08)' : 'transparent',
-              }}
-            >
+            <Link key={to} to={to} style={{
+              textDecoration: 'none',
+              padding: '5px 12px',
+              borderRadius: 5,
+              fontSize: 14,
+              color: pathname === to ? '#2563eb' : '#444444',
+              background: pathname === to ? '#eff6ff' : 'transparent',
+              fontWeight: pathname === to ? 600 : 400,
+            }}>
               {label}
             </Link>
           ))}
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden p-2 rounded-lg"
-          style={{ background: '#1a2540', color: '#94a3b8' }}
-          onClick={() => setOpen(o => !o)}
-        >
+        <button className="md:hidden btn-secondary" style={{ padding: '4px 10px' }}
+          onClick={() => setOpen(o => !o)}>
           {open ? '✕' : '☰'}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {open && (
-        <div className="md:hidden px-4 pb-4 flex flex-col gap-1" style={{ background: '#080c18' }}>
+        <div style={{ borderTop: '1px solid #e0e0e0', padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: 2 }}>
           {navLinks.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              onClick={() => setOpen(false)}
-              className="no-underline px-4 py-3 rounded-lg text-sm font-medium"
-              style={{
-                fontFamily: 'Sora,sans-serif',
-                color: pathname === to ? '#00d4ff' : '#94a3b8',
-                background: pathname === to ? 'rgba(0,212,255,0.08)' : 'transparent',
-              }}
-            >
+            <Link key={to} to={to} onClick={() => setOpen(false)} style={{
+              textDecoration: 'none',
+              padding: '8px 12px',
+              borderRadius: 5,
+              fontSize: 14,
+              color: pathname === to ? '#2563eb' : '#444444',
+              background: pathname === to ? '#eff6ff' : 'transparent',
+            }}>
               {label}
             </Link>
           ))}

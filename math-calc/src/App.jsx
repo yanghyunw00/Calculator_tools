@@ -8,9 +8,9 @@ import GraphicsCalculator from './pages/GraphicsCalculator';
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="flex flex-col min-h-screen" style={{ background: '#0a0e1a' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#ffffff' }}>
         <Navbar />
-        <main className="flex-1">
+        <main style={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/matrix" element={<MatrixCalculator />} />

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BlockMath, InlineMath } from 'react-katex';
+import { BlockMath } from 'react-katex';
 import StepByStep from '../components/matrix/StepByStep';
 import {
   computeDerivative, computePartialDerivative, computeIntegral,
@@ -7,15 +7,15 @@ import {
 } from '../utils/calculusMath';
 
 const OPS = [
-  { id: 'derivative', label: '도함수', icon: "f'(x)" },
-  { id: 'partial', label: '편미분', icon: '∂f/∂x' },
-  { id: 'integral', label: '적분', icon: '∫f dx' },
-  { id: 'limit', label: '극한', icon: 'lim' },
-  { id: 'taylor', label: '테일러 급수', icon: 'Σaₙxⁿ' },
+  { id: 'derivative', label: '도함수' },
+  { id: 'partial', label: '편미분' },
+  { id: 'integral', label: '적분' },
+  { id: 'limit', label: '극한' },
+  { id: 'taylor', label: '테일러 급수' },
 ];
 
-const SYMBOLS = ['x²', 'x³', '√', 'π', 'e', 'sin', 'cos', 'tan', 'ln', 'log', 'exp', '∞', '^', '(', ')', '/'];
-const SYMBOL_MAP = { 'x²': 'x^2', 'x³': 'x^3', '√': 'sqrt(', '∞': 'Infinity' };
+const SYMBOLS = ['x²', 'x³', '√(', 'π', 'e', 'sin(', 'cos(', 'tan(', 'ln(', 'log(', 'exp(', '^', '(', ')', '/'];
+const SYMBOL_MAP = { 'x²': 'x^2', 'x³': 'x^3', '√(': 'sqrt(' };
 
 export default function CalcCalculator() {
   const [op, setOp] = useState('derivative');
@@ -31,7 +31,6 @@ export default function CalcCalculator() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState('');
 
   const insertSymbol = sym => {
     const ins = SYMBOL_MAP[sym] || sym;
@@ -40,7 +39,7 @@ export default function CalcCalculator() {
 
   const calculate = async () => {
     setLoading(true); setError(''); setResult(null);
-    await new Promise(r => setTimeout(r, 80));
+    await new Promise(r => setTimeout(r, 60));
     try {
       let res;
       switch (op) {
@@ -59,103 +58,94 @@ export default function CalcCalculator() {
     }
   };
 
-
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-6">
+    <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 className="text-3xl font-bold gradient-text mb-1" style={{ fontFamily: 'Sora,sans-serif' }}>
-          미적분 계산기
-        </h1>
-        <p className="text-sm" style={{ color: '#64748b', fontFamily: 'Sora,sans-serif' }}>
-          도함수, 적분, 극한, 급수 — 단계별 풀이 제공
-        </p>
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>미적분 계산기</h1>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>단계별 풀이 포함</p>
       </div>
 
       {/* Op tabs */}
-      <div className="flex flex-wrap gap-2">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {OPS.map(o => (
           <button key={o.id} onClick={() => { setOp(o.id); setResult(null); }}
-            className="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
             style={{
-              fontFamily: 'Sora,sans-serif',
-              background: op === o.id ? 'linear-gradient(135deg,rgba(0,212,255,0.2),rgba(124,58,237,0.2))' : '#1a2540',
-              color: op === o.id ? '#00d4ff' : '#94a3b8',
-              border: op === o.id ? '1px solid rgba(0,212,255,0.5)' : '1px solid #2d3a5e',
+              padding: '7px 16px', borderRadius: 6, fontSize: 13,
+              fontFamily: 'Arial, sans-serif', cursor: 'pointer',
+              border: op === o.id ? '1px solid #2563eb' : '1px solid #cccccc',
+              background: op === o.id ? '#eff6ff' : '#ffffff',
+              color: op === o.id ? '#2563eb' : '#333333',
+              fontWeight: op === o.id ? 600 : 400,
             }}>
-            <span className="mr-1.5" style={{ fontFamily: 'JetBrains Mono,monospace' }}>{o.icon}</span>
             {o.label}
           </button>
         ))}
       </div>
 
-      {/* Expression input */}
-      <div className="calc-card p-5 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium" style={{ color: '#94a3b8', fontFamily: 'Sora,sans-serif' }}>수식 입력</label>
-          <input
-            type="text"
-            value={expr}
-            onChange={e => setExpr(e.target.value)}
-            className="calc-input text-lg"
-            placeholder="예: x^3 + 2*x^2 - 5*x + 1"
-          />
+      {/* Input card */}
+      <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#444444' }}>수식 입력</label>
+          <input type="text" value={expr} onChange={e => setExpr(e.target.value)}
+            className="calc-input" style={{ fontSize: 15 }}
+            placeholder="예: x^3 + 2*x^2 - 5*x + 1" />
         </div>
 
-        {/* Symbol buttons */}
-        <div className="flex flex-wrap gap-1.5">
+        {/* Symbol palette */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
           {SYMBOLS.map(sym => (
-            <button key={sym} onClick={() => insertSymbol(sym)}
-              className="btn-secondary px-2.5 py-1 text-sm rounded-lg"
-              style={{ fontFamily: 'JetBrains Mono,monospace' }}>
+            <button key={sym} onClick={() => insertSymbol(sym)} className="btn-secondary"
+              style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, padding: '4px 10px' }}>
               {sym}
             </button>
           ))}
         </div>
 
-        {/* Options per operation */}
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs" style={{ color: '#64748b' }}>변수</label>
+        {/* Options */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ fontSize: 12, color: '#888888' }}>변수</label>
             <select value={variable} onChange={e => setVariable(e.target.value)}
-              className="calc-input w-20 text-center text-sm">
+              className="calc-input" style={{ width: 70, textAlign: 'center' }}>
               {['x', 'y', 'z', 't'].map(v => <option key={v} value={v}>{v}</option>)}
             </select>
           </div>
 
           {op === 'derivative' && (
-            <div className="flex flex-col gap-1">
-              <label className="text-xs" style={{ color: '#64748b' }}>미분 차수</label>
-              <input type="number" min={1} max={5} value={order} onChange={e => setOrder(Number(e.target.value))}
-                className="calc-input w-20 text-center text-sm" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontSize: 12, color: '#888888' }}>미분 차수</label>
+              <input type="number" min={1} max={5} value={order}
+                onChange={e => setOrder(Number(e.target.value))}
+                className="calc-input" style={{ width: 70, textAlign: 'center' }} />
             </div>
           )}
 
           {op === 'integral' && (
             <>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs" style={{ color: '#64748b' }}>하한 (선택)</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 12, color: '#888888' }}>하한</label>
                 <input type="text" value={lower} onChange={e => setLower(e.target.value)}
-                  className="calc-input w-24 text-center text-sm" placeholder="0" />
+                  className="calc-input" style={{ width: 80, textAlign: 'center' }} placeholder="0" />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs" style={{ color: '#64748b' }}>상한 (선택)</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 12, color: '#888888' }}>상한</label>
                 <input type="text" value={upper} onChange={e => setUpper(e.target.value)}
-                  className="calc-input w-24 text-center text-sm" placeholder="1" />
+                  className="calc-input" style={{ width: 80, textAlign: 'center' }} placeholder="1" />
               </div>
             </>
           )}
 
           {op === 'limit' && (
             <>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs" style={{ color: '#64748b' }}>극한 값</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 12, color: '#888888' }}>극한 값</label>
                 <input type="text" value={limitPoint} onChange={e => setLimitPoint(e.target.value)}
-                  className="calc-input w-28 text-center text-sm" placeholder="0" />
+                  className="calc-input" style={{ width: 90, textAlign: 'center' }} />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs" style={{ color: '#64748b' }}>방향</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 12, color: '#888888' }}>방향</label>
                 <select value={limitDir} onChange={e => setLimitDir(e.target.value)}
-                  className="calc-input text-sm">
+                  className="calc-input" style={{ width: 130 }}>
                   <option value="both">양방향</option>
                   <option value="left">좌극한 (x→a⁻)</option>
                   <option value="right">우극한 (x→a⁺)</option>
@@ -166,44 +156,41 @@ export default function CalcCalculator() {
 
           {op === 'taylor' && (
             <>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs" style={{ color: '#64748b' }}>전개 점</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 12, color: '#888888' }}>전개 점</label>
                 <input type="text" value={taylorPoint} onChange={e => setTaylorPoint(e.target.value)}
-                  className="calc-input w-24 text-center text-sm" />
+                  className="calc-input" style={{ width: 80, textAlign: 'center' }} />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs" style={{ color: '#64748b' }}>항 수</label>
-                <input type="number" min={1} max={10} value={taylorOrder} onChange={e => setTaylorOrder(Number(e.target.value))}
-                  className="calc-input w-20 text-center text-sm" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 12, color: '#888888' }}>항 수</label>
+                <input type="number" min={1} max={10} value={taylorOrder}
+                  onChange={e => setTaylorOrder(Number(e.target.value))}
+                  className="calc-input" style={{ width: 70, textAlign: 'center' }} />
               </div>
             </>
           )}
         </div>
       </div>
 
-      <button onClick={calculate} disabled={loading}
-        className="btn-primary px-8 py-3 text-base font-semibold flex items-center gap-3 self-start">
-        {loading ? <><span className="spinner" />계산 중...</> : '계산하기 →'}
-      </button>
+      {/* Calculate */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <button onClick={calculate} disabled={loading} className="btn-primary"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 32px', fontSize: 14 }}>
+          {loading ? <><span className="spinner" /> 계산 중...</> : '계산하기'}
+        </button>
+      </div>
 
-      {error && (
-        <div className="p-4 rounded-xl text-sm flex items-start gap-3"
-          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5', fontFamily: 'Sora,sans-serif' }}>
-          <span>⚠</span> {error}
-        </div>
-      )}
+      {error && <div className="error-box">⚠ {error}</div>}
 
       {result && (
-        <>
-          <div className="calc-card p-5 flex flex-col gap-3">
-            <span className="text-sm font-semibold" style={{ color: '#00d4ff', fontFamily: 'Sora,sans-serif' }}>결과</span>
-            <div className="overflow-x-auto">
-              <BlockMath math={result.latex} />
-            </div>
-            {result.note && <p className="text-xs" style={{ color: '#64748b' }}>{result.note}</p>}
+        <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#2563eb' }}>결과</span>
+          <div style={{ overflowX: 'auto', textAlign: 'center' }}>
+            <BlockMath math={result.latex} />
           </div>
+          {result.note && <p style={{ fontSize: 12, color: '#888888', margin: 0 }}>{result.note}</p>}
           <StepByStep steps={result.steps} />
-        </>
+        </div>
       )}
     </div>
   );
