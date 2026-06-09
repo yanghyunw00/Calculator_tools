@@ -204,28 +204,27 @@ export function calcLU(m) {
 // ── Eigenvalues / Eigenvectors ────────────────────────────────────────────
 export function calcEigen(m) {
   const steps = [{ label: 'Step 1: 원본 행렬', latex: `A = ${matrixToLatex(m)}` }];
-  const n = m.length;
   steps.push({ label: 'Step 2: 특성 방정식 det(A − λI) = 0 풀기', latex: `\\det(A - \\lambda I) = 0` });
   try {
-    const { values, vectors } = math.eigs(math.matrix(m));
-    const vals = values.toArray ? values.toArray() : values;
-    const vecs = vectors.toArray ? vectors.toArray() : vectors;
-    vals.forEach((v, i) => {
-      const re = math.re(v), im = math.im(v);
+    const result = math.eigs(math.matrix(m));
+    // math.js v15+: eigenvectors is [{value, vector}]
+    const eigvecs = result.eigenvectors;
+    eigvecs.forEach(({ value, vector }, i) => {
+      const vec = vector.toArray ? vector.toArray() : (Array.isArray(vector) ? vector : []);
+      const re = math.re(value), im = math.im(value);
       const lamStr = im !== 0 ? `${formatNum(re)} ${im >= 0 ? '+' : ''}${formatNum(im)}i` : formatNum(re);
-      const col = vecs.map(row => row[i]);
-      const colReal = col.map(x => typeof x === 'object' ? math.re(x) : x);
+      const colReal = vec.map(x => (typeof x === 'object' && x !== null) ? math.re(x) : x);
       steps.push({
         label: `고유값 λ${i+1} = ${lamStr}`,
         latex: `\\lambda_{${i+1}} = ${lamStr},\\quad \\mathbf{v}_{${i+1}} = ${vectorToLatex(colReal)}`
       });
     });
-    const resultLatex = vals.map((v, i) => {
-      const re = math.re(v), im = math.im(v);
+    const resultLatex = eigvecs.map(({ value }, i) => {
+      const re = math.re(value), im = math.im(value);
       return `\\lambda_{${i+1}} = ${im !== 0 ? `${formatNum(re)}${im >= 0 ? '+' : ''}${formatNum(im)}i` : formatNum(re)}`;
     }).join(',\\quad ');
     steps.push({ label: '결과 요약', latex: resultLatex });
-    return { values: vals, vectors: vecs, steps, latex: resultLatex };
+    return { values: eigvecs.map(e => e.value), steps, latex: resultLatex };
   } catch (e) {
     throw new Error('고유값 계산 실패: ' + e.message);
   }
@@ -239,7 +238,7 @@ export function calcSVD(m) {
     const AT = math.transpose(A);
     const ATA = math.multiply(AT, A);
     steps.push({ label: 'Step 2: AᵀA 계산', latex: `A^T A = ${matrixToLatex(ATA._data || ATA)}` });
-    const { values, vectors: V } = math.eigs(ATA);
+    const { values } = math.eigs(ATA);
     const vals = (values.toArray ? values.toArray() : values).map(v => math.re(v));
     const singularValues = vals.map(v => Math.sqrt(Math.max(0, v)));
     const sorted = singularValues.map((s, i) => [s, i]).sort((a, b) => b[0] - a[0]);

@@ -101,11 +101,8 @@ function buildFrustumGroup(fov, aspect, near, far) {
   const color = 0xff9900;
   const group = new THREE.Group();
   edges.forEach(([a,b]) => group.add(makeTube(a, b, 0.028, color)));
-  // camera dot
-  group.add(Object.assign(
-    new THREE.Mesh(new THREE.SphereGeometry(0.13,10,10), new THREE.MeshBasicMaterial({ color: 0xff5500 })),
-    { position: new THREE.Vector3(0,0,0) }
-  ));
+  // camera dot at origin
+  group.add(new THREE.Mesh(new THREE.SphereGeometry(0.13,10,10), new THREE.MeshBasicMaterial({ color: 0xff5500 })));
   group.matrixAutoUpdate = false;
   return group;
 }
@@ -126,11 +123,14 @@ export default function ThreeScene({ modelMat, showVertices, showNormals, frustu
   const mountRef = useRef(null);
   const stateRef = useRef({});
   const [zoom, setZoom] = useState(11);
+  const [sceneError, setSceneError] = useState(null);
 
   useEffect(() => {
     const el = mountRef.current;
     if (!el) return;
     const w = el.clientWidth || 700, h = el.clientHeight || 520;
+    let cleanup = () => {};
+    try {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(w, h);
@@ -305,7 +305,7 @@ export default function ThreeScene({ modelMat, showVertices, showNormals, frustu
     });
     ro.observe(el);
 
-    return () => {
+    cleanup = () => {
       cancelAnimationFrame(animId);
       renderer.domElement.removeEventListener('mousedown', onDown);
       window.removeEventListener('mousemove', onMove);
@@ -317,6 +317,10 @@ export default function ThreeScene({ modelMat, showVertices, showNormals, frustu
       ro.disconnect(); renderer.dispose();
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
     };
+    } catch (err) {
+      setSceneError(err?.message || String(err));
+    }
+    return () => cleanup();
   }, []);
 
   // Model matrix
@@ -412,6 +416,16 @@ export default function ThreeScene({ modelMat, showVertices, showNormals, frustu
     s.cubeSolid.castShadow=shadowEnabled; s.cubeSolid.receiveShadow=shadowEnabled;
     s.ground.receiveShadow=shadowEnabled;
   }, [lighting]);
+
+  if (sceneError) {
+    return (
+      <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:10, padding:20 }}>
+        <span style={{ fontSize:13, color:'#cc0000', fontWeight:600 }}>⚠ WebGL 렌더러 오류</span>
+        <code style={{ fontSize:11, color:'#888888', maxWidth:400, textAlign:'center', wordBreak:'break-all', background:'#f5f5f5', padding:'8px 12px', borderRadius:6 }}>{sceneError}</code>
+        <span style={{ fontSize:11, color:'#aaaaaa' }}>브라우저 콘솔(F12)에서 상세 오류를 확인하세요</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ width:'100%', height:'100%', position:'relative' }}>
