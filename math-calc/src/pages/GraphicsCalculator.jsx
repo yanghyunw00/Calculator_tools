@@ -119,7 +119,7 @@ export default function GraphicsCalculator() {
 
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
         {/* ── Left panel ──────────────────────────────────────────────── */}
-        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 56, maxHeight: 'calc(100vh - 64px)', overflowY: 'auto', alignSelf: 'flex-start' }}>
 
           {/* Model */}
           <div className="calc-card" style={{ padding: 14 }}>
@@ -268,7 +268,7 @@ export default function GraphicsCalculator() {
             </span>
           </div>
 
-          <div className="calc-card" style={{ height: 580, overflow: 'hidden', padding: 0 }}>
+          <div className="calc-card" style={{ height: 580, overflow: 'hidden', padding: 0, position: 'sticky', top: 56 }}>
             <ThreeScene
               modelMat={M}
               showVertices={showVertices}
