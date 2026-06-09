@@ -6,6 +6,7 @@ import {
   computeDerivative, computePartialDerivative, computeIntegral,
   computeLimit, computeTaylor
 } from '../utils/calculusMath';
+import { applyFracToResult } from '../utils/fracFormat';
 
 const OPS = [
   { id: 'derivative', label: "f'(x)  도함수" },
@@ -66,6 +67,12 @@ export default function CalcCalculator() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fracMode, setFracMode] = useState(false);
+
+  const displayResult = useMemo(
+    () => fracMode ? applyFracToResult(result) : result,
+    [result, fracMode]
+  );
 
   // Live LaTeX preview
   const preview = useMemo(() => {
@@ -267,14 +274,25 @@ export default function CalcCalculator() {
 
       {error && <div className="error-box">⚠ {error}</div>}
 
-      {result && (
+      {displayResult && (
         <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>결과</span>
-          <div style={{ overflowX: 'auto', textAlign: 'center' }}>
-            <BlockMath math={result.latex} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>결과</span>
+            <button onClick={() => setFracMode(v => !v)} style={{
+              padding: '3px 11px', borderRadius: 5, fontSize: 11, cursor: 'pointer',
+              fontFamily: 'Arial, sans-serif',
+              border: fracMode ? '1px solid #16a34a' : '1px solid #cccccc',
+              background: fracMode ? '#f0fdf4' : '#ffffff',
+              color: fracMode ? '#16a34a' : '#888888',
+            }}>
+              {fracMode ? '분수 ✓' : '분수'}
+            </button>
           </div>
-          {result.note && <p style={{ fontSize: 12, color: '#888888', margin: 0 }}>{result.note}</p>}
-          <StepByStep steps={result.steps} />
+          <div style={{ overflowX: 'auto', textAlign: 'center' }}>
+            <BlockMath math={displayResult.latex} />
+          </div>
+          {displayResult.note && <p style={{ fontSize: 12, color: '#888888', margin: 0 }}>{displayResult.note}</p>}
+          <StepByStep steps={displayResult.steps} />
         </div>
       )}
     </div>

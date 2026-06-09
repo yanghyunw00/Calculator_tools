@@ -232,22 +232,77 @@ export function calcEigen(m) {
 
 // ── SVD ───────────────────────────────────────────────────────────────────
 export function calcSVD(m) {
-  const steps = [{ label: 'Step 1: 원본 행렬', latex: `A = ${matrixToLatex(m)}` }];
+  const rows = m.length, cols = m[0].length;
+  const steps = [{ label: 'Step 1: 원본 행렬 A', latex: `A = ${matrixToLatex(m)}` }];
   try {
-    const A  = math.matrix(m);
-    const AT = math.transpose(A);
+    const A   = math.matrix(m);
+    const AT  = math.transpose(A);
     const ATA = math.multiply(AT, A);
-    steps.push({ label: 'Step 2: AᵀA 계산', latex: `A^T A = ${matrixToLatex(ATA._data || ATA)}` });
-    const { values } = math.eigs(ATA);
-    const vals = (values.toArray ? values.toArray() : values).map(v => math.re(v));
-    const singularValues = vals.map(v => Math.sqrt(Math.max(0, v)));
-    const sorted = singularValues.map((s, i) => [s, i]).sort((a, b) => b[0] - a[0]);
-    const sigmas = sorted.map(([s]) => s);
-    steps.push({ label: 'Step 3: AᵀA의 고유값 λᵢ → 특이값 σᵢ = √λᵢ', latex: sigmas.map((s, i) => `\\sigma_{${i+1}} = ${formatNum(s)}`).join(',\\quad ') });
-    steps.push({ label: `Step 4: A = U Σ Vᵀ (분해 완성)`, latex: `\\Sigma = \\text{diag}(${sigmas.map(s => formatNum(s)).join(',\;')})` });
+    const ATAarr = ATA.toArray ? ATA.toArray() : ATA._data;
+    steps.push({ label: 'Step 2: AᵀA 계산', latex: `A^T A = ${matrixToLatex(ATAarr)}` });
+
+    const eigResult = math.eigs(ATA);
+    const eigvecs = eigResult.eigenvectors; // [{value, vector}] in math.js v15+
+
+    // Sort by eigenvalue descending so σ₁ ≥ σ₂ ≥ …
+    const sorted = eigvecs
+      .map(({ value, vector }) => ({
+        lambda: math.re(value),
+        vec: (vector.toArray ? vector.toArray() : vector)
+          .map(x => (typeof x === 'object' && x !== null) ? math.re(x) : Number(x))
+      }))
+      .sort((a, b) => b.lambda - a.lambda);
+
+    const k = Math.min(rows, cols);
+    const sigmas = sorted.slice(0, k).map(e => Math.sqrt(Math.max(0, e.lambda)));
+
+    steps.push({
+      label: 'Step 3: AᵀA 고유값 → 특이값 σᵢ = √λᵢ',
+      latex: sigmas.map((s, i) =>
+        `\\sigma_{${i+1}} = \\sqrt{${formatNum(sorted[i].lambda)}} = ${formatNum(s)}`
+      ).join(',\\quad ')
+    });
+
+    // V (n×k): columns are right singular vectors (eigenvectors of AᵀA)
+    const Vmat = Array.from({ length: cols }, (_, r) =>
+      sorted.slice(0, k).map(e => e.vec[r] ?? 0)
+    );
+    steps.push({ label: 'Step 4: V 행렬 (AᵀA의 고유벡터 — 우 특이벡터)', latex: `V = ${matrixToLatex(Vmat)}` });
+
+    // U (m×k): u_i = (1/σ_i) A v_i
+    const Umat = Array.from({ length: rows }, () => Array(k).fill(0));
+    for (let i = 0; i < k; i++) {
+      if (sigmas[i] < 1e-10) continue;
+      for (let r = 0; r < rows; r++) {
+        let sum = 0;
+        for (let c = 0; c < cols; c++) sum += m[r][c] * sorted[i].vec[c];
+        Umat[r][i] = sum / sigmas[i];
+      }
+    }
+    steps.push({ label: 'Step 5: U 행렬  uᵢ = (1/σᵢ) · A·vᵢ  (좌 특이벡터)', latex: `U = ${matrixToLatex(Umat)}` });
+
+    // Σ (k×k diagonal)
+    const Sigmat = Array.from({ length: k }, (_, i) =>
+      Array.from({ length: k }, (_, j) => (i === j ? sigmas[i] : 0))
+    );
+
+    // V^T (k×n)
+    const VTobj = math.transpose(math.matrix(Vmat));
+    const VTmat = VTobj.toArray ? VTobj.toArray() : VTobj._data;
+    steps.push({ label: 'Step 6: Vᵀ', latex: `V^T = ${matrixToLatex(VTmat)}` });
+    steps.push({ label: '완성: A = U · Σ · Vᵀ', latex: `A = U \\cdot \\Sigma \\cdot V^T` });
+
     const resultLatex = sigmas.map((s, i) => `\\sigma_{${i+1}} = ${formatNum(s)}`).join(',\\quad ');
-    steps.push({ label: '결과: 특이값', latex: resultLatex });
-    return { singularValues: sigmas, steps, latex: resultLatex };
+
+    return {
+      singularValues: sigmas,
+      U: Umat, V: Vmat, VT: VTmat,
+      steps,
+      latex: `A = U \\cdot \\Sigma \\cdot V^T \\quad (${resultLatex})`,
+      U_latex:     `U = ${matrixToLatex(Umat)}`,
+      Sigma_latex: `\\Sigma = ${matrixToLatex(Sigmat)}`,
+      VT_latex:    `V^T = ${matrixToLatex(VTmat)}`,
+    };
   } catch (e) {
     throw new Error('SVD 계산 실패: ' + e.message);
   }
