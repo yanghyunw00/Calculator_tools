@@ -116,40 +116,104 @@ export function computeLimit(expr, variable = 'x', point = '0', direction = 'bot
   }
 }
 
+// ── Taylor helpers ────────────────────────────────────────────────────────
+function fnTex(n, aStr) {
+  if (n === 0) return `f(${aStr})`;
+  if (n === 1) return `f'(${aStr})`;
+  if (n === 2) return `f''(${aStr})`;
+  return `f^{(${n})}(${aStr})`;
+}
+
+function termTex(c, n, p, v) {
+  if (n === 0) return String(c);
+  const xPart = p === 0
+    ? (n === 1 ? v : `${v}^{${n}}`)
+    : (n === 1 ? `(${v} - ${p})` : `(${v} - ${p})^{${n}}`);
+  if (c === 1)  return xPart;
+  if (c === -1) return `-${xPart}`;
+  return `${c}\\,${xPart}`;
+}
+
 export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
   try {
     const p = Number(point);
-    let node = math.parse(expr);
-    const steps = [{ label: 'Step 1: 원본 함수', latex: node.toTex() }];
+    const aStr = String(p);
+    let derivNode = math.parse(expr);
+
+    const xTermTex = p === 0
+      ? `${variable}^n`
+      : `(${variable} - ${p})^n`;
+
+    const steps = [
+      {
+        label: '원본 함수',
+        latex: `f(${variable}) = ${derivNode.toTex()}`
+      },
+      {
+        label: `테일러 공식  (전개점 a = ${aStr})`,
+        latex: `f(${variable}) \\approx \\sum_{n=0}^{N} \\frac{f^{(n)}(${aStr})}{n!} \\cdot ${xTermTex}`
+      },
+    ];
+
     const scope = { [variable]: p };
-    let terms = [];
+    const terms = [];
     let factorial = 1;
 
     for (let n = 0; n <= order; n++) {
       if (n > 0) {
-        node = math.derivative(node, variable);
+        derivNode = math.derivative(derivNode, variable);
         factorial *= n;
       }
-      let coeff;
-      try { coeff = math.evaluate(node.toString(), scope); } catch { coeff = 0; }
-      if (Math.abs(coeff) > 1e-12) {
-        const c = math.round(coeff / factorial, 6);
-        terms.push({ n, c });
+
+      let fnVal;
+      try { fnVal = math.evaluate(derivNode.toString(), scope); } catch { fnVal = 0; }
+      if (!isFinite(fnVal)) fnVal = 0;
+
+      const coeff = math.round(fnVal / factorial, 6);
+      const isZero = Math.abs(coeff) < 1e-10;
+      const ftex = fnTex(n, aStr);
+      const fvStr = String(math.round(fnVal, 4));
+
+      if (isZero) {
         steps.push({
-          label: `Step ${n + 2}: f^(${n})(${p}) / ${n}! = ${math.round(coeff, 6)} / ${factorial} = ${c}`,
-          latex: `${c} \\cdot (${variable} ${p >= 0 && n > 0 ? '-' : '+'} ${Math.abs(p)})^{${n}}`
+          label: `n = ${n}  →  0 (항 없음)`,
+          latex: n <= 1
+            ? `${ftex} = 0`
+            : `${ftex} = ${fvStr}, \\quad \\dfrac{${fvStr}}{${n}!} = 0`
         });
+      } else {
+        const tt = termTex(coeff, n, p, variable);
+        steps.push({
+          label: `n = ${n}  →  계수 ${coeff}`,
+          latex: n <= 1
+            ? `${ftex} = ${coeff} \\;\\Longrightarrow\\; ${tt}`
+            : `${ftex} = ${fvStr},\\quad \\dfrac{${fvStr}}{${n}!} = ${coeff} \\;\\Longrightarrow\\; ${tt}`
+        });
+        terms.push({ n, c: coeff });
       }
     }
 
-    const seriesLatex = terms.map(({ n, c }) => {
-      if (n === 0) return `${c}`;
-      if (p === 0) return `${c === 1 ? '' : c === -1 ? '-' : c}${variable}${n > 1 ? `^{${n}}` : ''}`;
-      return `${c}(${variable} - ${p})^{${n}}`;
-    }).join(' + ').replace(/\+ -/g, '- ');
+    if (!terms.length) {
+      return { latex: `f(${variable}) \\approx 0`, steps };
+    }
 
-    steps.push({ label: '결과: 테일러 급수', latex: seriesLatex + ` + O(${variable}^{${order + 1}})` });
-    return { latex: seriesLatex + ` + O(${variable}^{${order + 1}})`, steps };
+    // Assemble series: join with + / -, handle leading minus
+    const parts = terms.map(({ n, c }) => termTex(c, n, p, variable));
+    let series = parts[0];
+    for (let i = 1; i < parts.length; i++) {
+      series += parts[i].startsWith('-') ? ` ${parts[i]}` : ` + ${parts[i]}`;
+    }
+    const rem = p === 0
+      ? `O(${variable}^{${order + 1}})`
+      : `O\\!\\left((${variable} - ${p})^{${order + 1}}\\right)`;
+    series += ` + ${rem}`;
+
+    steps.push({
+      label: '테일러 급수',
+      latex: `f(${variable}) \\approx ${series}`
+    });
+
+    return { latex: `f(${variable}) \\approx ${series}`, steps };
   } catch (e) {
     throw new Error('테일러 급수 계산 실패: ' + e.message);
   }
