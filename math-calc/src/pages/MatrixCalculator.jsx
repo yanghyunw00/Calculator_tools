@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BlockMath } from 'react-katex';
+import { BlockMath } from '../components/KaTeX';
 import MatrixGrid from '../components/matrix/MatrixGrid';
 import MatrixOps from '../components/matrix/MatrixOps';
 import StepByStep from '../components/matrix/StepByStep';

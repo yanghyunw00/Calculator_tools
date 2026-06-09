@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BlockMath } from 'react-katex';
+import { BlockMath } from '../KaTeX';
 
 export default function StepByStep({ steps = [] }) {
   const [open, setOpen] = useState(false);

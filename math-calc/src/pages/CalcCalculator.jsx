@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BlockMath } from 'react-katex';
+import { BlockMath } from '../components/KaTeX';
 import StepByStep from '../components/matrix/StepByStep';
 import {
   computeDerivative, computePartialDerivative, computeIntegral,
