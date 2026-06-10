@@ -115,6 +115,7 @@ export default function GraphicsCalculator() {
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>3D 그래픽스 계산기</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>드래그로 뷰 회전 · 스크롤로 줌</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>MVP 행렬, 조명(Directional/Spot/Point), 그림자 매핑(Basic/PCF/Soft)을 실시간 3D 뷰어로 시각화하고 GLSL 코드로 바로 복사할 수 있습니다.</p>
       </div>
 
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>

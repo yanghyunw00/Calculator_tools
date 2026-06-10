@@ -81,6 +81,7 @@ export default function MatrixCalculator() {
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>행렬 계산기</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>단계별 풀이 포함</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>행렬식(det), 역행렬, 전치, 랭크, LU분해, SVD, 고유값/고유벡터 등 선형대수 핵심 연산을 단계별 풀이와 KaTeX 수식으로 제공합니다.</p>
       </div>
 
       {/* Mode toggle */}

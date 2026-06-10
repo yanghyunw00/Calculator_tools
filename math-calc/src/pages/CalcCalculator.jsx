@@ -119,6 +119,7 @@ export default function CalcCalculator() {
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>미적분 계산기</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>단계별 풀이 포함</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>도함수, 편미분, 정·부정적분, 극한, 테일러 급수를 수식 입력 한 번으로 즉시 계산하고 풀이 과정을 확인할 수 있습니다.</p>
       </div>
 
       {/* Op tabs */}
