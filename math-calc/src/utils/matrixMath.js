@@ -347,3 +347,51 @@ export function calcSubtract(a, b) {
     latex: `A - B = ${matrixToLatex(result)}`
   };
 }
+
+// ── Multi-matrix chain operations ─────────────────────────────────────────
+const CHAIN_LABELS = ['A', 'B', 'C', 'D'];
+
+export function calcMultiplyChain(matrices) {
+  const steps = matrices.map((m, i) => ({
+    label: `행렬 ${CHAIN_LABELS[i]}`,
+    latex: `${CHAIN_LABELS[i]} = ${matrixToLatex(m)}`
+  }));
+  let result = matrices[0];
+  for (let i = 1; i < matrices.length; i++) {
+    if (result[0].length !== matrices[i].length)
+      throw new Error(`차원 불일치: (${result.length}×${result[0].length}) × (${matrices[i].length}×${matrices[i][0].length})`);
+    result = math.multiply(math.matrix(result), math.matrix(matrices[i]))._data;
+    const expr = CHAIN_LABELS.slice(0, i + 1).join(' \\times ');
+    steps.push({ label: `${CHAIN_LABELS.slice(0, i).join('×')} × ${CHAIN_LABELS[i]} 계산`, latex: `${expr} = ${matrixToLatex(result)}` });
+  }
+  const expr = CHAIN_LABELS.slice(0, matrices.length).join(' \\times ');
+  return { value: result, steps, latex: `${expr} = ${matrixToLatex(result)}` };
+}
+
+export function calcAddChain(matrices) {
+  const [rows, cols] = [matrices[0].length, matrices[0][0].length];
+  for (let i = 1; i < matrices.length; i++)
+    if (matrices[i].length !== rows || matrices[i][0].length !== cols)
+      throw new Error('행렬 크기가 모두 같아야 합니다');
+  const steps = matrices.map((m, i) => ({ label: `행렬 ${CHAIN_LABELS[i]}`, latex: `${CHAIN_LABELS[i]} = ${matrixToLatex(m)}` }));
+  let result = matrices[0];
+  for (let i = 1; i < matrices.length; i++)
+    result = math.add(math.matrix(result), math.matrix(matrices[i]))._data;
+  const expr = CHAIN_LABELS.slice(0, matrices.length).join(' + ');
+  steps.push({ label: '결과', latex: `${expr} = ${matrixToLatex(result)}` });
+  return { value: result, steps, latex: `${expr} = ${matrixToLatex(result)}` };
+}
+
+export function calcSubtractChain(matrices) {
+  const [rows, cols] = [matrices[0].length, matrices[0][0].length];
+  for (let i = 1; i < matrices.length; i++)
+    if (matrices[i].length !== rows || matrices[i][0].length !== cols)
+      throw new Error('행렬 크기가 모두 같아야 합니다');
+  const steps = matrices.map((m, i) => ({ label: `행렬 ${CHAIN_LABELS[i]}`, latex: `${CHAIN_LABELS[i]} = ${matrixToLatex(m)}` }));
+  let result = matrices[0];
+  for (let i = 1; i < matrices.length; i++)
+    result = math.subtract(math.matrix(result), math.matrix(matrices[i]))._data;
+  const expr = CHAIN_LABELS.slice(0, matrices.length).join(' - ');
+  steps.push({ label: '결과', latex: `${expr} = ${matrixToLatex(result)}` });
+  return { value: result, steps, latex: `${expr} = ${matrixToLatex(result)}` };
+}

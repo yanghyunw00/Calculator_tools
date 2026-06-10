@@ -1,3 +1,5 @@
+const LABELS = ['A', 'B', 'C', 'D'];
+
 const singleOps = [
   { id: 'det', label: '행렬식' },
   { id: 'inv', label: '역행렬' },
@@ -9,14 +11,12 @@ const singleOps = [
   { id: 'svd', label: 'SVD' },
 ];
 
-const dualOps = [
-  { id: 'multiply', label: 'A × B' },
-  { id: 'add', label: 'A + B' },
-  { id: 'subtract', label: 'A − B' },
-];
-
-export default function MatrixOps({ activeOp, onSelect, mode = 'single' }) {
-  const ops = mode === 'single' ? singleOps : dualOps;
+export default function MatrixOps({ activeOp, onSelect, mode = 'single', matrixCount = 2 }) {
+  const ops = mode === 'single' ? singleOps : [
+    { id: 'multiply', label: LABELS.slice(0, matrixCount).join(' × ') },
+    { id: 'add',      label: LABELS.slice(0, matrixCount).join(' + ') },
+    { id: 'subtract', label: LABELS.slice(0, matrixCount).join(' − ') },
+  ];
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
       {ops.map(op => (
