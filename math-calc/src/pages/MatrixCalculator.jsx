@@ -36,6 +36,8 @@ export default function MatrixCalculator() {
     emptyGrid(3, 3), emptyGrid(3, 3), emptyGrid(3, 3), emptyGrid(3, 3),
   ]);
   const [matrixCount, setMatrixCount] = useState(2);
+  const [dragIdx, setDragIdx] = useState(null);
+  const [dragOver, setDragOver] = useState(null);
   const [op, setOp] = useState('det');
   const [power, setPower] = useState(2);
   const [result, setResult] = useState(null);
@@ -57,6 +59,16 @@ export default function MatrixCalculator() {
 
   const changeCount = (delta) => {
     setMatrixCount(c => Math.max(2, Math.min(4, c + delta)));
+    setResult(null);
+  };
+
+  const handleDrop = (toIdx) => {
+    if (dragIdx === null || dragIdx === toIdx) return;
+    const next = [...grids];
+    [next[dragIdx], next[toIdx]] = [next[toIdx], next[dragIdx]];
+    setGrids(next);
+    setDragIdx(null);
+    setDragOver(null);
     setResult(null);
   };
 
@@ -144,7 +156,25 @@ export default function MatrixCalculator() {
           {/* Matrix grids */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
             {Array.from({ length: matrixCount }, (_, i) => (
-              <div key={i} className="calc-card" style={{ padding: 14, flex: '1 1 260px' }}>
+              <div
+                key={i}
+                draggable
+                onDragStart={() => setDragIdx(i)}
+                onDragOver={e => { e.preventDefault(); setDragOver(i); }}
+                onDragLeave={() => setDragOver(null)}
+                onDrop={() => handleDrop(i)}
+                onDragEnd={() => { setDragIdx(null); setDragOver(null); }}
+                className="calc-card"
+                style={{
+                  padding: 14, flex: '1 1 260px', cursor: 'grab',
+                  outline: dragOver === i && dragIdx !== i ? '2px dashed #16a34a' : 'none',
+                  opacity: dragIdx === i ? 0.5 : 1,
+                  transition: 'opacity 0.15s, outline 0.1s',
+                }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: '#ccc', cursor: 'grab', userSelect: 'none' }}>⠿</span>
+                  <span style={{ fontSize: 11, color: '#aaa' }}>드래그로 순서 변경</span>
+                </div>
                 <MatrixGrid label={`행렬 ${LABELS[i]}`} grid={grids[i]} onChange={g => updateGrid(i, g)} />
               </div>
             ))}
