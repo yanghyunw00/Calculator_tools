@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import ThreeScene from '../components/graphics/ThreeScene';
 import { modelMatrix } from '../utils/graphicsMath';
 
@@ -83,6 +83,10 @@ export default function GraphicsCalculator() {
   // Toggles
   const [showVertices, setShowVertices] = useState(false);
   const [showNormals, setShowNormals]   = useState(false);
+
+  useEffect(() => {
+    document.title = '3D 그래픽스 계산기 — MVP 행렬·조명·그림자 매핑 실시간 시각화 | MathCalc';
+  }, []);
 
   const M = useMemo(
     () => modelMatrix({ tx, ty, tz, rx, ry, rz, sx, sy, sz }),

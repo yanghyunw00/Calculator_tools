@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
+
 const CARDS = [
   {
     to: '/matrix',
@@ -26,6 +27,7 @@ export default function Home() {
   const [recent, setRecent] = useState([]);
 
   useEffect(() => {
+    document.title = 'MathCalc — 행렬·미적분·3D 그래픽스 수학 계산기';
     setRecent(JSON.parse(localStorage.getItem('recentCalcs') || '[]'));
   }, []);
 

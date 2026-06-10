@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { BlockMath } from '../components/KaTeX';
 import MatrixGrid from '../components/matrix/MatrixGrid';
 import MatrixOps from '../components/matrix/MatrixOps';
@@ -33,6 +33,10 @@ export default function MatrixCalculator() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fracMode, setFracMode] = useState(false);
+
+  useEffect(() => {
+    document.title = '행렬 계산기 — 역행렬·행렬식·LU분해·SVD·고유값 단계별 풀이 | MathCalc';
+  }, []);
 
   const displayResult = useMemo(
     () => fracMode ? applyFracToResult(result) : result,

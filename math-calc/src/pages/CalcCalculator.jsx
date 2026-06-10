@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import * as math from 'mathjs';
 import { BlockMath } from '../components/KaTeX';
 import StepByStep from '../components/matrix/StepByStep';
@@ -68,6 +68,10 @@ export default function CalcCalculator() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fracMode, setFracMode] = useState(false);
+
+  useEffect(() => {
+    document.title = '미적분 계산기 — 도함수·적분·극한·테일러 급수 단계별 풀이 | MathCalc';
+  }, []);
 
   const displayResult = useMemo(
     () => fracMode ? applyFracToResult(result) : result,
