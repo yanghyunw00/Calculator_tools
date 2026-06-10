@@ -7,6 +7,8 @@ import {
   computeLimit, computeTaylor
 } from '../utils/calculusMath';
 import { applyFracToResult } from '../utils/fracFormat';
+import CalcGraph2D from '../components/calculus/CalcGraph2D';
+import CalcGraph3D from '../components/calculus/CalcGraph3D';
 
 const OPS = [
   { id: 'derivative', label: "f'(x)  도함수" },
@@ -298,6 +300,30 @@ export default function CalcCalculator() {
           </div>
           {displayResult.note && <p style={{ fontSize: 12, color: '#888888', margin: 0 }}>{displayResult.note}</p>}
           <StepByStep steps={displayResult.steps} />
+        </div>
+      )}
+
+      {displayResult && (
+        <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#444444' }}>그래프</span>
+          {op === 'partial' ? (
+            <CalcGraph3D
+              expr={expr}
+              varX={variable}
+              varY={variable === 'x' ? 'y' : 'x'}
+            />
+          ) : (
+            <CalcGraph2D
+              op={op}
+              expr={expr}
+              variable={variable}
+              lower={lower}
+              upper={upper}
+              limitPoint={limitPoint}
+              limitDir={limitDir}
+              taylorResult={op === 'taylor' ? (result?.poly || null) : null}
+            />
+          )}
         </div>
       )}
     </div>
