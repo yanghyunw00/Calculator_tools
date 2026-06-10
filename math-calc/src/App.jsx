@@ -6,6 +6,7 @@ import MatrixCalculator from './pages/MatrixCalculator';
 import CalcCalculator from './pages/CalcCalculator';
 import GraphicsCalculator from './pages/GraphicsCalculator';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import VectorCalculator from './pages/VectorCalculator';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/calculus" element={<CalcCalculator />} />
             <Route path="/graphics" element={<GraphicsCalculator />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/vector" element={<VectorCalculator />} />
           </Routes>
         </main>
         <Footer />
