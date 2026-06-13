@@ -1,9 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import MatrixCalculator from './pages/MatrixCalculator';
 import CalcCalculator from './pages/CalcCalculator';
 import GraphicsCalculator from './pages/GraphicsCalculator';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import VectorCalculator from './pages/VectorCalculator';
 
 export default function App() {
   return (
@@ -16,8 +19,11 @@ export default function App() {
             <Route path="/matrix" element={<MatrixCalculator />} />
             <Route path="/calculus" element={<CalcCalculator />} />
             <Route path="/graphics" element={<GraphicsCalculator />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/vector" element={<VectorCalculator />} />
           </Routes>
         </main>
+        <Footer />
       </div>
     </BrowserRouter>
   );

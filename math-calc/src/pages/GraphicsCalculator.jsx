@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import ThreeScene from '../components/graphics/ThreeScene';
 import { modelMatrix } from '../utils/graphicsMath';
 
@@ -84,6 +84,10 @@ export default function GraphicsCalculator() {
   const [showVertices, setShowVertices] = useState(false);
   const [showNormals, setShowNormals]   = useState(false);
 
+  useEffect(() => {
+    document.title = '3D 그래픽스 계산기 — MVP 행렬·조명·그림자 매핑 실시간 시각화 | MathCalc';
+  }, []);
+
   const M = useMemo(
     () => modelMatrix({ tx, ty, tz, rx, ry, rz, sx, sy, sz }),
     [tx, ty, tz, rx, ry, rz, sx, sy, sz]
@@ -115,11 +119,12 @@ export default function GraphicsCalculator() {
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>3D 그래픽스 계산기</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>드래그로 뷰 회전 · 스크롤로 줌</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>MVP 행렬, 조명(Directional/Spot/Point), 그림자 매핑(Basic/PCF/Soft)을 실시간 3D 뷰어로 시각화하고 GLSL 코드로 바로 복사할 수 있습니다.</p>
       </div>
 
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
         {/* ── Left panel ──────────────────────────────────────────────── */}
-        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 56, maxHeight: 'calc(100vh - 64px)', overflowY: 'auto', alignSelf: 'flex-start' }}>
+        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 56, maxHeight: 'calc(100vh - 64px)', overflowY: 'auto', alignSelf: 'flex-start', zIndex: 10 }}>
 
           {/* Model */}
           <div className="calc-card" style={{ padding: 14 }}>

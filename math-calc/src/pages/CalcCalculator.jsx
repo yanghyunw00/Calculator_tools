@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import * as math from 'mathjs';
 import { BlockMath } from '../components/KaTeX';
 import StepByStep from '../components/matrix/StepByStep';
@@ -7,6 +7,8 @@ import {
   computeLimit, computeTaylor
 } from '../utils/calculusMath';
 import { applyFracToResult } from '../utils/fracFormat';
+import CalcGraph2D from '../components/calculus/CalcGraph2D';
+import CalcGraph3D from '../components/calculus/CalcGraph3D';
 
 const OPS = [
   { id: 'derivative', label: "f'(x)  도함수" },
@@ -69,6 +71,10 @@ export default function CalcCalculator() {
   const [loading, setLoading] = useState(false);
   const [fracMode, setFracMode] = useState(false);
 
+  useEffect(() => {
+    document.title = '미적분 계산기 — 도함수·적분·극한·테일러 급수 단계별 풀이 | MathCalc';
+  }, []);
+
   const displayResult = useMemo(
     () => fracMode ? applyFracToResult(result) : result,
     [result, fracMode]
@@ -119,6 +125,7 @@ export default function CalcCalculator() {
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>미적분 계산기</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>단계별 풀이 포함</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>도함수, 편미분, 정·부정적분, 극한, 테일러 급수를 수식 입력 한 번으로 즉시 계산하고 풀이 과정을 확인할 수 있습니다.</p>
       </div>
 
       {/* Op tabs */}
@@ -293,6 +300,30 @@ export default function CalcCalculator() {
           </div>
           {displayResult.note && <p style={{ fontSize: 12, color: '#888888', margin: 0 }}>{displayResult.note}</p>}
           <StepByStep steps={displayResult.steps} />
+        </div>
+      )}
+
+      {displayResult && (
+        <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#444444' }}>그래프</span>
+          {op === 'partial' ? (
+            <CalcGraph3D
+              expr={expr}
+              varX={variable}
+              varY={variable === 'x' ? 'y' : 'x'}
+            />
+          ) : (
+            <CalcGraph2D
+              op={op}
+              expr={expr}
+              variable={variable}
+              lower={lower}
+              upper={upper}
+              limitPoint={limitPoint}
+              limitDir={limitDir}
+              taylorResult={op === 'taylor' ? (result?.poly || null) : null}
+            />
+          )}
         </div>
       )}
     </div>

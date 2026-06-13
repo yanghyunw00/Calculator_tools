@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
+
 const CARDS = [
   {
     to: '/matrix',
@@ -20,12 +21,19 @@ const CARDS = [
     desc: 'MVP 행렬, 변환 행렬, GLSL/HLSL 코드 복사',
     tags: ['MVP', 'LookAt', 'Perspective', 'GLSL'],
   },
+  {
+    to: '/vector',
+    title: '벡터 계산기',
+    desc: '내적, 외적, 사잇각 — 결과를 3D로 시각화',
+    tags: ['내적', '외적', 'A×B', '3D'],
+  },
 ];
 
 export default function Home() {
   const [recent, setRecent] = useState([]);
 
   useEffect(() => {
+    document.title = 'MathCalc — 행렬·미적분·3D 그래픽스 수학 계산기';
     setRecent(JSON.parse(localStorage.getItem('recentCalcs') || '[]'));
   }, []);
 

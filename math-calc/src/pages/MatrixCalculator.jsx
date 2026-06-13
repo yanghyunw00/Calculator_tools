@@ -1,14 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { BlockMath } from '../components/KaTeX';
 import MatrixGrid from '../components/matrix/MatrixGrid';
 import MatrixOps from '../components/matrix/MatrixOps';
 import StepByStep from '../components/matrix/StepByStep';
 import {
   parseMatrix, calcDeterminant, calcInverse, calcTranspose, calcRank,
-  calcPower, calcLU, calcEigen, calcMultiply, calcAdd, calcSubtract, calcSVD
+  calcPower, calcLU, calcEigen, calcSVD,
+  calcMultiplyChain, calcAddChain, calcSubtractChain,
 } from '../utils/matrixMath';
 import { applyFracToResult } from '../utils/fracFormat';
 
+const LABELS = ['A', 'B', 'C', 'D'];
 const emptyGrid = (r, c) => Array.from({ length: r }, () => Array(c).fill(''));
 
 const FracToggle = ({ active, onClick }) => (
@@ -24,9 +26,18 @@ const FracToggle = ({ active, onClick }) => (
 );
 
 export default function MatrixCalculator() {
+  useEffect(() => {
+    document.title = '행렬 계산기 — 역행렬·행렬식·LU분해·SVD·고유값 단계별 풀이 | MathCalc';
+  }, []);
+
   const [mode, setMode] = useState('single');
   const [gridA, setGridA] = useState(emptyGrid(3, 3));
-  const [gridB, setGridB] = useState(emptyGrid(3, 3));
+  const [grids, setGrids] = useState([
+    emptyGrid(3, 3), emptyGrid(3, 3), emptyGrid(3, 3), emptyGrid(3, 3),
+  ]);
+  const [matrixCount, setMatrixCount] = useState(2);
+  const [dragIdx, setDragIdx] = useState(null);
+  const [dragOver, setDragOver] = useState(null);
   const [op, setOp] = useState('det');
   const [power, setPower] = useState(2);
   const [result, setResult] = useState(null);
@@ -39,16 +50,35 @@ export default function MatrixCalculator() {
     [result, fracMode]
   );
 
-  const swapAB = () => { setGridA(gridB); setGridB(gridA); setResult(null); };
+  const updateGrid = (i, g) => {
+    const next = [...grids];
+    next[i] = g;
+    setGrids(next);
+    setResult(null);
+  };
+
+  const changeCount = (delta) => {
+    setMatrixCount(c => Math.max(2, Math.min(4, c + delta)));
+    setResult(null);
+  };
+
+  const handleDrop = (toIdx) => {
+    if (dragIdx === null || dragIdx === toIdx) return;
+    const next = [...grids];
+    [next[dragIdx], next[toIdx]] = [next[toIdx], next[dragIdx]];
+    setGrids(next);
+    setDragIdx(null);
+    setDragOver(null);
+    setResult(null);
+  };
 
   const calculate = async () => {
     setLoading(true); setError(''); setResult(null);
     await new Promise(r => setTimeout(r, 60));
     try {
-      const A = parseMatrix(gridA);
-      const B = parseMatrix(gridB);
       let res;
       if (mode === 'single') {
+        const A = parseMatrix(gridA);
         switch (op) {
           case 'det':       res = calcDeterminant(A); break;
           case 'inv':       res = calcInverse(A); break;
@@ -61,10 +91,11 @@ export default function MatrixCalculator() {
           default: throw new Error('연산을 선택하세요');
         }
       } else {
+        const matrices = grids.slice(0, matrixCount).map(g => parseMatrix(g));
         switch (op) {
-          case 'multiply':  res = calcMultiply(A, B); break;
-          case 'add':       res = calcAdd(A, B); break;
-          case 'subtract':  res = calcSubtract(A, B); break;
+          case 'multiply': res = calcMultiplyChain(matrices); break;
+          case 'add':      res = calcAddChain(matrices); break;
+          case 'subtract': res = calcSubtractChain(matrices); break;
           default: throw new Error('연산을 선택하세요');
         }
       }
@@ -77,15 +108,16 @@ export default function MatrixCalculator() {
   };
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>행렬 계산기</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>단계별 풀이 포함</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>행렬식(det), 역행렬, 전치, 랭크, LU분해, SVD, 고유값/고유벡터 등 선형대수 핵심 연산을 단계별 풀이와 KaTeX 수식으로 제공합니다.</p>
       </div>
 
       {/* Mode toggle */}
       <div style={{ display: 'flex', gap: 6 }}>
-        {[['single', '단일 행렬 (A)'], ['dual', '두 행렬 (A, B)']].map(([m, label]) => (
+        {[['single', '단일 행렬 (A)'], ['multi', '여러 행렬 (A~D)']].map(([m, label]) => (
           <button key={m} onClick={() => { setMode(m); setOp(m === 'single' ? 'det' : 'multiply'); setResult(null); }}
             style={{
               padding: '7px 16px', borderRadius: 6, fontSize: 13,
@@ -100,33 +132,60 @@ export default function MatrixCalculator() {
         ))}
       </div>
 
-      {/* Matrix inputs */}
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        <div className="calc-card" style={{ padding: 16, flex: '1 1 300px' }}>
+      {mode === 'single' ? (
+        <div className="calc-card" style={{ padding: 16 }}>
           <MatrixGrid label="행렬 A" grid={gridA} onChange={g => { setGridA(g); setResult(null); }} />
         </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Matrix count control */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 13, color: '#444', fontWeight: 600 }}>행렬 수</span>
+            <button onClick={() => changeCount(-1)} disabled={matrixCount <= 2}
+              style={{ width: 28, height: 28, borderRadius: 5, border: '1px solid #ccc', background: '#fff', cursor: matrixCount <= 2 ? 'not-allowed' : 'pointer', fontSize: 16, color: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              −
+            </button>
+            <span style={{ fontSize: 15, fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{matrixCount}</span>
+            <button onClick={() => changeCount(1)} disabled={matrixCount >= 4}
+              style={{ width: 28, height: 28, borderRadius: 5, border: '1px solid #ccc', background: '#fff', cursor: matrixCount >= 4 ? 'not-allowed' : 'pointer', fontSize: 16, color: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              +
+            </button>
+            <span style={{ fontSize: 12, color: '#aaa' }}>({LABELS.slice(0, matrixCount).join(', ')})</span>
+          </div>
 
-        {mode === 'dual' && (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', paddingTop: 40 }}>
-              <button onClick={swapAB} className="btn-secondary"
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '8px 12px', fontSize: 18, lineHeight: 1 }}
-                title="A ↔ B 교환">
-                <span>⇄</span>
-                <span style={{ fontSize: 10, color: '#888888' }}>교환</span>
-              </button>
-            </div>
-            <div className="calc-card" style={{ padding: 16, flex: '1 1 300px' }}>
-              <MatrixGrid label="행렬 B" grid={gridB} onChange={g => { setGridB(g); setResult(null); }} />
-            </div>
-          </>
-        )}
-      </div>
+          {/* Matrix grids */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
+            {Array.from({ length: matrixCount }, (_, i) => (
+              <div
+                key={i}
+                draggable
+                onDragStart={() => setDragIdx(i)}
+                onDragOver={e => { e.preventDefault(); setDragOver(i); }}
+                onDragLeave={() => setDragOver(null)}
+                onDrop={() => handleDrop(i)}
+                onDragEnd={() => { setDragIdx(null); setDragOver(null); }}
+                className="calc-card"
+                style={{
+                  padding: 14, flex: '1 1 260px', cursor: 'grab',
+                  outline: dragOver === i && dragIdx !== i ? '2px dashed #16a34a' : 'none',
+                  opacity: dragIdx === i ? 0.5 : 1,
+                  transition: 'opacity 0.15s, outline 0.1s',
+                }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: '#ccc', cursor: 'grab', userSelect: 'none' }}>⠿</span>
+                  <span style={{ fontSize: 11, color: '#aaa' }}>드래그로 순서 변경</span>
+                </div>
+                <MatrixGrid label={`행렬 ${LABELS[i]}`} grid={grids[i]} onChange={g => updateGrid(i, g)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Operations */}
       <div className="calc-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#444444' }}>연산 선택</span>
-        <MatrixOps activeOp={op} onSelect={o => { setOp(o); setResult(null); }} mode={mode} />
+        <MatrixOps activeOp={op} onSelect={o => { setOp(o); setResult(null); }} mode={mode} matrixCount={matrixCount} />
         {op === 'power' && mode === 'single' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
             <span style={{ fontSize: 13, color: '#444444' }}>n =</span>
@@ -147,20 +206,15 @@ export default function MatrixCalculator() {
 
       {error && <div className="error-box">⚠ {error}</div>}
 
-      {/* Result */}
       {displayResult && (
         <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>결과</span>
             <FracToggle active={fracMode} onClick={() => setFracMode(v => !v)} />
           </div>
-
-          {/* Main result */}
           <div style={{ overflowX: 'auto', textAlign: 'center' }}>
             <BlockMath math={displayResult.latex} />
           </div>
-
-          {/* SVD: show U, Σ, V^T as separate panels */}
           {displayResult.U_latex && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center', paddingTop: 8 }}>
               {[
@@ -177,7 +231,6 @@ export default function MatrixCalculator() {
               ))}
             </div>
           )}
-
           <StepByStep steps={displayResult.steps} />
         </div>
       )}

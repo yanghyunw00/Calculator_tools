@@ -194,7 +194,7 @@ export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
     }
 
     if (!terms.length) {
-      return { latex: `f(${variable}) \\approx 0`, steps };
+      return { latex: `f(${variable}) \\approx 0`, steps, poly: '0' };
     }
 
     // Assemble series: join with + / -, handle leading minus
@@ -213,7 +213,17 @@ export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
       latex: `f(${variable}) \\approx ${series}`
     });
 
-    return { latex: `f(${variable}) \\approx ${series}`, steps };
+    // Build a mathjs-evaluable polynomial string for graph visualization
+    const polyParts = terms.map(({ n, c }) => {
+      if (n === 0) return String(c);
+      const xPart = p === 0
+        ? (n === 1 ? variable : `${variable}^${n}`)
+        : (n === 1 ? `(${variable} - ${p})` : `(${variable} - ${p})^${n}`);
+      return `${c} * ${xPart}`;
+    });
+    const poly = polyParts.join(' + ') || '0';
+
+    return { latex: `f(${variable}) \\approx ${series}`, steps, poly };
   } catch (e) {
     throw new Error('테일러 급수 계산 실패: ' + e.message);
   }

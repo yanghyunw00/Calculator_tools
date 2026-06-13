@@ -6,6 +6,7 @@ const navLinks = [
   { to: '/matrix', label: '행렬' },
   { to: '/calculus', label: '미적분' },
   { to: '/graphics', label: '3D 그래픽스' },
+  { to: '/vector', label: '벡터' },
 ];
 
 export default function Navbar() {
