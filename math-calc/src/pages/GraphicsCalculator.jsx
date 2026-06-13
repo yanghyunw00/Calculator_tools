@@ -115,16 +115,15 @@ export default function GraphicsCalculator() {
        shadowEnabled, shadowMapType, shadowMapSize, showHelper, showShadowCam, spotAngle, spotPenumbra]);
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', maxWidth: 1100, margin: '0 auto', padding: '0 16px', overflow: 'hidden' }}>
+      <div style={{ padding: '16px 0 10px', flexShrink: 0 }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>3D 그래픽스 계산기</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>드래그로 뷰 회전 · 스크롤로 줌</p>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>MVP 행렬, 조명(Directional/Spot/Point), 그림자 매핑(Basic/PCF/Soft)을 실시간 3D 뷰어로 시각화하고 GLSL 코드로 바로 복사할 수 있습니다.</p>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        {/* ── Left panel ──────────────────────────────────────────────── */}
-        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 56, maxHeight: 'calc(100vh - 64px)', overflowY: 'auto', alignSelf: 'flex-start', zIndex: 10 }}>
+      <div style={{ flex: 1, display: 'flex', gap: 12, overflow: 'hidden' }}>
+        {/* ── Left panel: 독립 스크롤 ──────────────────────────────────── */}
+        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', paddingBottom: 16 }}>
 
           {/* Model */}
           <div className="calc-card" style={{ padding: 14 }}>
@@ -257,9 +256,9 @@ export default function GraphicsCalculator() {
           </div>
         </div>
 
-        {/* ── Right: 3D view ───────────────────────────────────────────── */}
-        <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        {/* ── Right: 3D view (독립 스크롤, 캔버스가 공간 꽉 채움) ──────── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', paddingBottom: 16, minWidth: 0 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0 }}>
             <ToggleBtn active={showVertices} onClick={() => setShowVertices(v => !v)}>
               정점 번호 {showVertices ? '켜짐' : '꺼짐'}
             </ToggleBtn>
@@ -273,7 +272,7 @@ export default function GraphicsCalculator() {
             </span>
           </div>
 
-          <div className="calc-card" style={{ height: 580, overflow: 'hidden', padding: 0, position: 'sticky', top: 56 }}>
+          <div className="calc-card" style={{ flex: '1 1 0', minHeight: 420, overflow: 'hidden', padding: 0 }}>
             <ThreeScene
               modelMat={M}
               showVertices={showVertices}
