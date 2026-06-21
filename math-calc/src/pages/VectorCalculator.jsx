@@ -170,6 +170,27 @@ export default function VectorCalculator() {
         </div>
       </div>
 
+      {/* Content section */}
+      <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111' }}>벡터 연산 개념</h2>
+        <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.8 }}>
+          벡터(Vector)는 크기와 방향을 동시에 가지는 수학적 개체입니다. 3D 공간의 벡터 연산은 물리학, 컴퓨터 그래픽스, 머신러닝 등 다양한 분야에서 핵심적으로 사용됩니다.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
+          {[
+            { title: '내적 (Dot Product)', desc: 'a·b = |a||b|cosθ. 두 벡터가 얼마나 같은 방향을 가리키는지 나타냅니다. 결과가 0이면 수직입니다.' },
+            { title: '외적 (Cross Product)', desc: 'a×b는 두 벡터에 모두 수직인 새 벡터. 크기는 두 벡터가 이루는 평행사변형의 넓이입니다.' },
+            { title: '사잇각 (θ)', desc: 'θ = arccos(a·b / |a||b|). 내적을 이용해 두 벡터 사이의 각도를 0°~180° 범위로 계산합니다.' },
+            { title: '벡터 크기', desc: '|v| = √(x²+y²+z²). 원점에서 벡터 끝점까지의 거리이며, 단위벡터 정규화의 기준입니다.' },
+          ].map(({ title, desc }) => (
+            <div key={title} style={{ padding: '10px 12px', borderRadius: 6, background: '#f9f9f9', border: '1px solid #eee' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', marginBottom: 4 }}>{title}</div>
+              <div style={{ fontSize: 12, color: '#666', lineHeight: 1.6 }}>{desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* 3D Visualization */}
       <div className="calc-card" style={{ padding: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 8 }}>

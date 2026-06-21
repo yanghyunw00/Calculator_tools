@@ -206,6 +206,32 @@ export default function MatrixCalculator() {
 
       {error && <div className="error-box">⚠ {error}</div>}
 
+      {/* Content section */}
+      <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111' }}>행렬 연산이란?</h2>
+        <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.8 }}>
+          행렬(Matrix)은 수를 직사각형 형태로 배열한 구조로, 선형대수학의 핵심 개념입니다.
+          <strong> 행렬식(Determinant)</strong>은 정방행렬에서 스칼라 값을 계산하며, 역행렬 존재 여부 판별과 선형 변환의 부피 비율을 나타냅니다.
+          <strong> 역행렬(Inverse)</strong>은 A·A⁻¹ = I를 만족하는 행렬로, 연립방정식 풀이에 활용됩니다.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
+          {[
+            { title: 'LU 분해', desc: '행렬을 하삼각행렬(L)과 상삼각행렬(U)로 분해합니다. 연립방정식을 효율적으로 풀 때 사용합니다.' },
+            { title: 'SVD (특잇값 분해)', desc: '임의의 행렬을 U·Σ·Vᵀ로 분해합니다. 데이터 압축, 머신러닝 추천 시스템에 핵심적으로 활용됩니다.' },
+            { title: '고유값/고유벡터', desc: 'Av = λv를 만족하는 λ(고유값)와 v(고유벡터)를 구합니다. PCA 및 안정성 분석에 사용됩니다.' },
+            { title: '랭크(Rank)', desc: '행렬의 선형독립 행(열)의 최대 수입니다. 연립방정식의 해 존재 여부를 결정합니다.' },
+          ].map(({ title, desc }) => (
+            <div key={title} style={{ padding: '10px 12px', borderRadius: 6, background: '#f9f9f9', border: '1px solid #eee' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', marginBottom: 4 }}>{title}</div>
+              <div style={{ fontSize: 12, color: '#666', lineHeight: 1.6 }}>{desc}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{ margin: 0, fontSize: 12, color: '#888', lineHeight: 1.7 }}>
+          행렬 곱셈(A×B×C 체인), 덧셈, 뺄셈도 지원하며 최대 4개 행렬까지 한번에 연산할 수 있습니다. 드래그로 행렬 순서를 바꿀 수 있어 비가환적인 행렬 곱의 순서를 쉽게 실험해볼 수 있습니다.
+        </p>
+      </div>
+
       {displayResult && (
         <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

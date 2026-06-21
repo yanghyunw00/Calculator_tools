@@ -339,6 +339,28 @@ export default function GraphicsCalculator() {
             </div>
           )}
         </div>
+
+        {/* Content section */}
+        <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12, flexShrink: 0 }}>
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111' }}>3D 그래픽스 수학 개념</h2>
+          <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.8 }}>
+            3D 그래픽스 파이프라인에서 MVP(Model-View-Projection) 행렬은 3D 물체를 2D 화면에 투영하는 핵심 변환입니다.
+            <strong> Model 행렬</strong>은 물체의 위치·회전·크기를, <strong>View 행렬</strong>은 카메라 시점을, <strong>Projection 행렬</strong>은 원근 투영을 담당합니다.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 10 }}>
+            {[
+              { title: '조명 모델', desc: 'Directional(태양광), Point(전구), Spot(손전등) 세 가지 광원 타입을 실시간으로 전환하며 효과를 비교할 수 있습니다.' },
+              { title: '그림자 매핑', desc: '광원에서 깊이 버퍼를 생성해 그림자를 렌더링합니다. Basic·PCF·PCF Soft 세 가지 품질을 선택할 수 있습니다.' },
+              { title: 'Frustum (시야체)', desc: 'FOV, Near/Far 평면, Aspect Ratio로 정의되는 절두체입니다. 이 영역 밖의 물체는 렌더링되지 않습니다(클리핑).' },
+              { title: '법선 벡터', desc: '각 면에 수직인 벡터로 조명 계산의 핵심입니다. 법선 방향과 광원 방향의 내적으로 밝기를 결정합니다.' },
+            ].map(({ title, desc }) => (
+              <div key={title} style={{ padding: '10px 12px', borderRadius: 6, background: '#f9f9f9', border: '1px solid #eee' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', marginBottom: 4 }}>{title}</div>
+                <div style={{ fontSize: 12, color: '#666', lineHeight: 1.6 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
