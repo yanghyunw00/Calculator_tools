@@ -1,46 +1,48 @@
 import * as math from 'mathjs';
 
-export function computeDerivative(expr, variable = 'x', order = 1) {
+const idT = (k) => k;
+
+export function computeDerivative(expr, variable = 'x', order = 1, t = idT) {
   try {
     let node = math.parse(expr);
-    const steps = [{ label: 'Step 1: 원본 함수', latex: `f(${variable}) = ${math.parse(expr).toTex()}` }];
+    const steps = [{ label: t('cm.step.original'), latex: `f(${variable}) = ${math.parse(expr).toTex()}` }];
     for (let i = 0; i < order; i++) {
       node = math.derivative(node, variable);
       steps.push({
-        label: `Step ${i + 2}: ${i + 1}차 도함수`,
+        label: t('cm.step.nthDeriv', { n1: i + 1, n2: i + 2 }),
         latex: `f^{(${i + 1})}(${variable}) = ${node.toTex()}`
       });
     }
     const simplified = math.simplify(node);
-    steps.push({ label: '결과 (간소화)', latex: simplified.toTex() });
+    steps.push({ label: t('cm.step.simplified'), latex: simplified.toTex() });
     return { latex: simplified.toTex(), steps, expr: simplified.toString() };
   } catch (e) {
-    throw new Error('미분 계산 실패: ' + e.message);
+    throw new Error(t('cm.err.deriv') + e.message);
   }
 }
 
-export function computePartialDerivative(expr, variable = 'x') {
+export function computePartialDerivative(expr, variable = 'x', t = idT) {
   try {
     const node = math.parse(expr);
     const vars = ['x', 'y', 'z'].filter(v => expr.includes(v));
     const steps = [
-      { label: 'Step 1: 원본 함수', latex: `f(${vars.join(',')}) = ${node.toTex()}` },
-      { label: `Step 2: ${variable}에 대해 편미분 (나머지 변수는 상수 취급)`, latex: '' },
+      { label: t('cm.step.original'), latex: `f(${vars.join(',')}) = ${node.toTex()}` },
+      { label: t('cm.step.partialFrom', { v: variable }), latex: '' },
     ];
     const deriv = math.derivative(node, variable);
     const simplified = math.simplify(deriv);
     steps[1].latex = `\\frac{\\partial f}{\\partial ${variable}} = ${simplified.toTex()}`;
-    steps.push({ label: '결과', latex: simplified.toTex() });
+    steps.push({ label: t('cm.step.result'), latex: simplified.toTex() });
     return { latex: `\\frac{\\partial f}{\\partial ${variable}} = ${simplified.toTex()}`, steps };
   } catch (e) {
-    throw new Error('편미분 계산 실패: ' + e.message);
+    throw new Error(t('cm.err.partial') + e.message);
   }
 }
 
-export function computeIntegral(expr, variable = 'x', lower = null, upper = null) {
+export function computeIntegral(expr, variable = 'x', lower = null, upper = null, t = idT) {
   try {
     const node = math.parse(expr);
-    const steps = [{ label: 'Step 1: 피적분함수', latex: node.toTex() }];
+    const steps = [{ label: t('cm.step.integrand'), latex: node.toTex() }];
 
     if (lower !== null && upper !== null) {
       const lo = math.evaluate(String(lower));
@@ -55,31 +57,31 @@ export function computeIntegral(expr, variable = 'x', lower = null, upper = null
         try { sum += w * math.evaluate(expr, scope); } catch {}
       }
       const result = (h / 3) * sum;
-      steps.push({ label: 'Step 2: Simpson\'s Rule 수치 적분', latex: `\\int_{${lower}}^{${upper}} ${node.toTex()} \\, d${variable}` });
-      steps.push({ label: '결과', latex: `= ${math.round(result, 8)}` });
+      steps.push({ label: t('cm.step.simpson'), latex: `\\int_{${lower}}^{${upper}} ${node.toTex()} \\, d${variable}` });
+      steps.push({ label: t('cm.step.result'), latex: `= ${math.round(result, 8)}` });
       return {
         latex: `\\int_{${lower}}^{${upper}} ${node.toTex()} \\, d${variable} = ${math.round(result, 8)}`,
         steps,
         value: result
       };
     } else {
-      steps.push({ label: 'Step 2: 부정적분 계산', latex: `\\int ${node.toTex()} \\, d${variable}` });
-      steps.push({ label: '참고: 수치 적분 엔진 사용 (닫힌 형식 미지원)', latex: `\\int ${node.toTex()} \\, d${variable} + C` });
+      steps.push({ label: t('cm.step.antideriv'), latex: `\\int ${node.toTex()} \\, d${variable}` });
+      steps.push({ label: t('cm.step.numericNote'), latex: `\\int ${node.toTex()} \\, d${variable} + C` });
       return {
         latex: `\\int ${node.toTex()} \\, d${variable} + C`,
         steps,
-        note: '수치 적분을 위해 적분 구간을 입력하세요'
+        note: t('cm.note.enterBounds')
       };
     }
   } catch (e) {
-    throw new Error('적분 계산 실패: ' + e.message);
+    throw new Error(t('cm.err.integral') + e.message);
   }
 }
 
-export function computeLimit(expr, variable = 'x', point = '0', direction = 'both') {
+export function computeLimit(expr, variable = 'x', point = '0', direction = 'both', t = idT) {
   try {
     const node = math.parse(expr);
-    const steps = [{ label: 'Step 1: 원본 함수', latex: node.toTex() }];
+    const steps = [{ label: t('cm.step.original'), latex: node.toTex() }];
     const p = math.evaluate(String(point).replace('Infinity', '1e15').replace('-Infinity', '-1e15'));
     const epsilon = 1e-8;
     const scope = {};
@@ -105,14 +107,14 @@ export function computeLimit(expr, variable = 'x', point = '0', direction = 'bot
     const limitLatex = `\\lim_{${variable} \\to ${point}${dirLabel}} \\left( ${node.toTex()} \\right)`;
 
     if (result === null || !isFinite(result)) {
-      steps.push({ label: '결과: 극한 불존재 또는 무한대', latex: `${limitLatex} = \\nexists` });
-      return { latex: `${limitLatex} = \\text{존재하지 않음}`, steps };
+      steps.push({ label: t('cm.step.limitDNE'), latex: `${limitLatex} = \\nexists` });
+      return { latex: `${limitLatex} = \\text{${t('cm.latex.dne')}}`, steps };
     }
 
-    steps.push({ label: `Step 2: ${point}${dirLabel} 근방에서 수치 계산`, latex: `${limitLatex} \\approx ${math.round(result, 6)}` });
+    steps.push({ label: t('cm.step.limitNumeric', { point, dir: dirLabel }), latex: `${limitLatex} \\approx ${math.round(result, 6)}` });
     return { latex: `${limitLatex} = ${math.round(result, 6)}`, steps, value: result };
   } catch (e) {
-    throw new Error('극한 계산 실패: ' + e.message);
+    throw new Error(t('cm.err.limit') + e.message);
   }
 }
 
@@ -134,7 +136,7 @@ function termTex(c, n, p, v) {
   return `${c}\\,${xPart}`;
 }
 
-export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
+export function computeTaylor(expr, variable = 'x', point = 0, order = 5, t = idT) {
   try {
     const p = Number(point);
     const aStr = String(p);
@@ -146,11 +148,11 @@ export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
 
     const steps = [
       {
-        label: '원본 함수',
+        label: t('cm.step.taylorOriginal'),
         latex: `f(${variable}) = ${derivNode.toTex()}`
       },
       {
-        label: `테일러 공식  (전개점 a = ${aStr})`,
+        label: t('cm.step.taylorFormula', { a: aStr }),
         latex: `f(${variable}) \\approx \\sum_{n=0}^{N} \\frac{f^{(n)}(${aStr})}{n!} \\cdot ${xTermTex}`
       },
     ];
@@ -176,7 +178,7 @@ export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
 
       if (isZero) {
         steps.push({
-          label: `n = ${n}  →  0 (항 없음)`,
+          label: t('cm.step.taylorZero', { n }),
           latex: n <= 1
             ? `${ftex} = 0`
             : `${ftex} = ${fvStr}, \\quad \\dfrac{${fvStr}}{${n}!} = 0`
@@ -184,7 +186,7 @@ export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
       } else {
         const tt = termTex(coeff, n, p, variable);
         steps.push({
-          label: `n = ${n}  →  계수 ${coeff}`,
+          label: t('cm.step.taylorCoeff', { n, coeff }),
           latex: n <= 1
             ? `${ftex} = ${coeff} \\;\\Longrightarrow\\; ${tt}`
             : `${ftex} = ${fvStr},\\quad \\dfrac{${fvStr}}{${n}!} = ${coeff} \\;\\Longrightarrow\\; ${tt}`
@@ -209,7 +211,7 @@ export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
     series += ` + ${rem}`;
 
     steps.push({
-      label: '테일러 급수',
+      label: t('cm.step.taylorSeries'),
       latex: `f(${variable}) \\approx ${series}`
     });
 
@@ -225,6 +227,6 @@ export function computeTaylor(expr, variable = 'x', point = 0, order = 5) {
 
     return { latex: `f(${variable}) \\approx ${series}`, steps, poly };
   } catch (e) {
-    throw new Error('테일러 급수 계산 실패: ' + e.message);
+    throw new Error(t('cm.err.taylor') + e.message);
   }
 }

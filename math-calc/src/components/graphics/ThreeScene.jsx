@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { useLang } from '../../i18n/useLang';
 
 const CUBE_VERTS = [
   [-0.5,-0.5,-0.5],[-0.5, 0.5,-0.5],
@@ -124,6 +125,7 @@ export default function ThreeScene({ modelMat, showVertices, showNormals, frustu
   const stateRef = useRef({});
   const [zoom, setZoom] = useState(11);
   const [sceneError, setSceneError] = useState(null);
+  const { t } = useLang();
 
   useEffect(() => {
     const el = mountRef.current;
@@ -420,9 +422,9 @@ export default function ThreeScene({ modelMat, showVertices, showNormals, frustu
   if (sceneError) {
     return (
       <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:10, padding:20 }}>
-        <span style={{ fontSize:13, color:'#cc0000', fontWeight:600 }}>⚠ WebGL 렌더러 오류</span>
+        <span style={{ fontSize:13, color:'#cc0000', fontWeight:600 }}>{t('three.webglError')}</span>
         <code style={{ fontSize:11, color:'#888888', maxWidth:400, textAlign:'center', wordBreak:'break-all', background:'#f5f5f5', padding:'8px 12px', borderRadius:6 }}>{sceneError}</code>
-        <span style={{ fontSize:11, color:'#aaaaaa' }}>브라우저 콘솔(F12)에서 상세 오류를 확인하세요</span>
+        <span style={{ fontSize:11, color:'#aaaaaa' }}>{t('three.consoleHint')}</span>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { BlockMath } from '../components/KaTeX';
 import MatrixGrid from '../components/matrix/MatrixGrid';
 import MatrixOps from '../components/matrix/MatrixOps';
@@ -9,11 +9,12 @@ import {
   calcMultiplyChain, calcAddChain, calcSubtractChain,
 } from '../utils/matrixMath';
 import { applyFracToResult } from '../utils/fracFormat';
+import { useLang } from '../i18n/useLang';
 
 const LABELS = ['A', 'B', 'C', 'D'];
 const emptyGrid = (r, c) => Array.from({ length: r }, () => Array(c).fill(''));
 
-const FracToggle = ({ active, onClick }) => (
+const FracToggle = ({ active, onClick, t }) => (
   <button onClick={onClick} style={{
     padding: '3px 11px', borderRadius: 5, fontSize: 11, cursor: 'pointer',
     fontFamily: 'Arial, sans-serif',
@@ -21,14 +22,16 @@ const FracToggle = ({ active, onClick }) => (
     background: active ? '#f0fdf4' : '#ffffff',
     color: active ? '#16a34a' : '#888888',
   }}>
-    {active ? '분수 ✓' : '분수'}
+    {active ? t('common.fracOn') : t('common.frac')}
   </button>
 );
 
 export default function MatrixCalculator() {
+  const { t, lang } = useLang();
+
   useEffect(() => {
-    document.title = '행렬 계산기 — 역행렬·행렬식·LU분해·SVD·고유값 단계별 풀이 | MathCalc';
-  }, []);
+    document.title = t('matrix.doc.title');
+  }, [t]);
 
   const [mode, setMode] = useState('single');
   const [gridA, setGridA] = useState(emptyGrid(3, 3));
@@ -80,23 +83,23 @@ export default function MatrixCalculator() {
       if (mode === 'single') {
         const A = parseMatrix(gridA);
         switch (op) {
-          case 'det':       res = calcDeterminant(A); break;
-          case 'inv':       res = calcInverse(A); break;
-          case 'transpose': res = calcTranspose(A); break;
-          case 'rank':      res = calcRank(A); break;
-          case 'power':     res = calcPower(A, power); break;
-          case 'lu':        res = calcLU(A); break;
-          case 'eigen':     res = calcEigen(A); break;
-          case 'svd':       res = calcSVD(A); break;
-          default: throw new Error('연산을 선택하세요');
+          case 'det':       res = calcDeterminant(A, t); break;
+          case 'inv':       res = calcInverse(A, t); break;
+          case 'transpose': res = calcTranspose(A, t); break;
+          case 'rank':      res = calcRank(A, t); break;
+          case 'power':     res = calcPower(A, power, t); break;
+          case 'lu':        res = calcLU(A, t); break;
+          case 'eigen':     res = calcEigen(A, t); break;
+          case 'svd':       res = calcSVD(A, t); break;
+          default: throw new Error(t('common.selectOp'));
         }
       } else {
         const matrices = grids.slice(0, matrixCount).map(g => parseMatrix(g));
         switch (op) {
-          case 'multiply': res = calcMultiplyChain(matrices); break;
-          case 'add':      res = calcAddChain(matrices); break;
-          case 'subtract': res = calcSubtractChain(matrices); break;
-          default: throw new Error('연산을 선택하세요');
+          case 'multiply': res = calcMultiplyChain(matrices, t); break;
+          case 'add':      res = calcAddChain(matrices, t); break;
+          case 'subtract': res = calcSubtractChain(matrices, t); break;
+          default: throw new Error(t('common.selectOp'));
         }
       }
       setResult(res);
@@ -107,17 +110,28 @@ export default function MatrixCalculator() {
     }
   };
 
+  // Recompute so step-by-step labels follow a language switch.
+  // Guarded by langRef so it only fires on an actual lang change, never in a loop.
+  const langRef = useRef(lang);
+  useEffect(() => {
+    if (langRef.current === lang) return;
+    langRef.current = lang;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (result || error) calculate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
+
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>행렬 계산기</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>단계별 풀이 포함</p>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>행렬식(det), 역행렬, 전치, 랭크, LU분해, SVD, 고유값/고유벡터 등 선형대수 핵심 연산을 단계별 풀이와 KaTeX 수식으로 제공합니다.</p>
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>{t('matrix.heading')}</h1>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>{t('common.withSteps')}</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>{t('matrix.intro')}</p>
       </div>
 
       {/* Mode toggle */}
       <div style={{ display: 'flex', gap: 6 }}>
-        {[['single', '단일 행렬 (A)'], ['multi', '여러 행렬 (A~D)']].map(([m, label]) => (
+        {[['single', t('matrix.mode.single')], ['multi', t('matrix.mode.multi')]].map(([m, label]) => (
           <button key={m} onClick={() => { setMode(m); setOp(m === 'single' ? 'det' : 'multiply'); setResult(null); }}
             style={{
               padding: '7px 16px', borderRadius: 6, fontSize: 13,
@@ -134,13 +148,13 @@ export default function MatrixCalculator() {
 
       {mode === 'single' ? (
         <div className="calc-card" style={{ padding: 16 }}>
-          <MatrixGrid label="행렬 A" grid={gridA} onChange={g => { setGridA(g); setResult(null); }} />
+          <MatrixGrid label={t('matrix.matrixLabel', { name: 'A' })} grid={gridA} onChange={g => { setGridA(g); setResult(null); }} />
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* Matrix count control */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 13, color: '#444', fontWeight: 600 }}>행렬 수</span>
+            <span style={{ fontSize: 13, color: '#444', fontWeight: 600 }}>{t('matrix.count')}</span>
             <button onClick={() => changeCount(-1)} disabled={matrixCount <= 2}
               style={{ width: 28, height: 28, borderRadius: 5, border: '1px solid #ccc', background: '#fff', cursor: matrixCount <= 2 ? 'not-allowed' : 'pointer', fontSize: 16, color: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               −
@@ -173,9 +187,9 @@ export default function MatrixCalculator() {
                 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                   <span style={{ fontSize: 11, color: '#ccc', cursor: 'grab', userSelect: 'none' }}>⠿</span>
-                  <span style={{ fontSize: 11, color: '#aaa' }}>드래그로 순서 변경</span>
+                  <span style={{ fontSize: 11, color: '#aaa' }}>{t('matrix.dragHint')}</span>
                 </div>
-                <MatrixGrid label={`행렬 ${LABELS[i]}`} grid={grids[i]} onChange={g => updateGrid(i, g)} />
+                <MatrixGrid label={t('matrix.matrixLabel', { name: LABELS[i] })} grid={grids[i]} onChange={g => updateGrid(i, g)} />
               </div>
             ))}
           </div>
@@ -184,7 +198,7 @@ export default function MatrixCalculator() {
 
       {/* Operations */}
       <div className="calc-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#444444' }}>연산 선택</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#444444' }}>{t('matrix.selectOp')}</span>
         <MatrixOps activeOp={op} onSelect={o => { setOp(o); setResult(null); }} mode={mode} matrixCount={matrixCount} />
         {op === 'power' && mode === 'single' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
@@ -200,7 +214,7 @@ export default function MatrixCalculator() {
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <button onClick={calculate} disabled={loading} className="btn-primary"
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 32px', fontSize: 14 }}>
-          {loading ? <><span className="spinner" /> 계산 중...</> : '계산하기'}
+          {loading ? <><span className="spinner" /> {t('common.calculating')}</> : t('common.calculate')}
         </button>
       </div>
 
@@ -209,8 +223,8 @@ export default function MatrixCalculator() {
       {displayResult && (
         <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>결과</span>
-            <FracToggle active={fracMode} onClick={() => setFracMode(v => !v)} />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a' }}>{t('common.result')}</span>
+            <FracToggle active={fracMode} onClick={() => setFracMode(v => !v)} t={t} />
           </div>
           <div style={{ overflowX: 'auto', textAlign: 'center' }}>
             <BlockMath math={displayResult.latex} />
@@ -218,9 +232,9 @@ export default function MatrixCalculator() {
           {displayResult.U_latex && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center', paddingTop: 8 }}>
               {[
-                { label: 'U  (좌 특이벡터)', key: 'U_latex' },
-                { label: 'Σ  (대각 특이값)', key: 'Sigma_latex' },
-                { label: 'Vᵀ  (우 특이벡터)', key: 'VT_latex' },
+                { label: t('matrix.svd.U'), key: 'U_latex' },
+                { label: t('matrix.svd.Sigma'), key: 'Sigma_latex' },
+                { label: t('matrix.svd.VT'), key: 'VT_latex' },
               ].map(({ label, key }) => (
                 <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 11, color: '#888888', fontFamily: 'Arial, sans-serif' }}>{label}</span>

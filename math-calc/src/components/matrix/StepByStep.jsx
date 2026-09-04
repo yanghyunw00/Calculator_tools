@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { BlockMath } from '../KaTeX';
+import { useLang } from '../../i18n/useLang';
 
 export default function StepByStep({ steps = [] }) {
+  const { t } = useLang();
   const [open, setOpen] = useState(false);
 
   if (!steps.length) return null;
@@ -10,7 +12,7 @@ export default function StepByStep({ steps = [] }) {
     <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: 12, marginTop: 4 }}>
       <button onClick={() => setOpen(o => !o)} className="btn-secondary"
         style={{ fontSize: 13 }}>
-        {open ? '▲ 단계별 풀이 접기' : '▼ 단계별 풀이 보기'}
+        {open ? t('steps.hide') : t('steps.show')}
       </button>
 
       {open && (

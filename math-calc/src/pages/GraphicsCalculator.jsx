@@ -1,6 +1,24 @@
 import { useState, useMemo, useEffect } from 'react';
 import ThreeScene from '../components/graphics/ThreeScene';
 import { modelMatrix } from '../utils/graphicsMath';
+import { useLang } from '../i18n/useLang';
+
+// Switch to a stacked layout when the viewport is too narrow for a
+// 230px control column + a usable 3D view side by side.
+function useNarrowLayout(breakpoint = 860) {
+  const query = `(max-width: ${breakpoint - 1}px)`;
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const onChange = (e) => setNarrow(e.matches);
+    onChange(mq);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [query]);
+  return narrow;
+}
 
 const Slider = ({ label, value, min, max, step = 0.1, onChange }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -84,9 +102,12 @@ export default function GraphicsCalculator() {
   const [showVertices, setShowVertices] = useState(false);
   const [showNormals, setShowNormals]   = useState(false);
 
+  const { t } = useLang();
+  const narrow = useNarrowLayout();
+
   useEffect(() => {
-    document.title = '3D 그래픽스 계산기 — MVP 행렬·조명·그림자 매핑 실시간 시각화 | MathCalc';
-  }, []);
+    document.title = t('gfx.doc.title');
+  }, [t]);
 
   const M = useMemo(
     () => modelMatrix({ tx, ty, tz, rx, ry, rz, sx, sy, sz }),
@@ -115,16 +136,27 @@ export default function GraphicsCalculator() {
        shadowEnabled, shadowMapType, shadowMapSize, showHelper, showShadowCam, spotAngle, spotPenumbra]);
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ maxWidth: 1100, width: '100%', margin: '0 auto', padding: '28px 16px', display: 'flex', flexDirection: 'column', gap: 20, boxSizing: 'border-box', overflowX: 'hidden' }}>
       <div>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>3D 그래픽스 계산기</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>드래그로 뷰 회전 · 스크롤로 줌</p>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>MVP 행렬, 조명(Directional/Spot/Point), 그림자 매핑(Basic/PCF/Soft)을 실시간 3D 뷰어로 시각화하고 GLSL 코드로 바로 복사할 수 있습니다.</p>
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>{t('gfx.heading')}</h1>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>{t('gfx.hint')}</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>{t('gfx.intro')}</p>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', flexDirection: narrow ? 'column' : 'row', gap: 16, alignItems: 'stretch' }}>
         {/* ── Left panel ──────────────────────────────────────────────── */}
-        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 56, maxHeight: 'calc(100vh - 64px)', overflowY: 'auto', alignSelf: 'flex-start', zIndex: 10 }}>
+        <div style={{
+          flex: narrow ? '0 0 auto' : '0 0 230px',
+          width: narrow ? '100%' : 230,
+          minWidth: 0,
+          display: 'flex', flexDirection: 'column', gap: 10,
+          zIndex: 10,
+          ...(narrow ? {} : {
+            position: 'sticky', top: 56, alignSelf: 'flex-start',
+            maxHeight: 'calc(100vh - 72px)',
+            overflowY: 'auto', overflowX: 'hidden',
+          }),
+        }}>
 
           {/* Model */}
           <div className="calc-card" style={{ padding: 14 }}>
@@ -152,7 +184,7 @@ export default function GraphicsCalculator() {
           {/* Frustum Camera */}
           <div className="calc-card" style={{ padding: 14 }}>
             <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Frustum Camera</div>
-            <div style={{ fontSize: 11, color: '#888888', marginBottom: 8 }}>주황 점 = 카메라 위치</div>
+            <div style={{ fontSize: 11, color: '#888888', marginBottom: 8 }}>{t('gfx.frustumHint')}</div>
             <SectionLabel>Position</SectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <Slider label="X" value={fcX} min={-8} max={8} onChange={setFcX} />
@@ -226,9 +258,9 @@ export default function GraphicsCalculator() {
                       onChange={setShadowMapType}
                     />
                     <span style={{ fontSize: 10, color: '#aaaaaa', marginTop: 2 }}>
-                      {shadowMapType === 'basic'   && 'Hard edges, fastest'}
-                      {shadowMapType === 'pcf'     && 'Percentage Closer Filtering'}
-                      {shadowMapType === 'pcfsoft' && 'PCF + blur, softest'}
+                      {shadowMapType === 'basic'   && t('gfx.mapTypeBasic')}
+                      {shadowMapType === 'pcf'     && t('gfx.mapTypePcf')}
+                      {shadowMapType === 'pcfsoft' && t('gfx.mapTypePcfSoft')}
                     </span>
                   </div>
 
@@ -239,32 +271,32 @@ export default function GraphicsCalculator() {
                       value={shadowMapSize}
                       onChange={setShadowMapSize}
                     />
-                    <span style={{ fontSize: 10, color: '#aaaaaa', marginTop: 2 }}>높을수록 선명, GPU 부하↑</span>
+                    <span style={{ fontSize: 10, color: '#aaaaaa', marginTop: 2 }}>{t('gfx.resHint')}</span>
                   </div>
 
                   {lightType === 'directional' && (
                     <ToggleBtn active={showShadowCam} onClick={() => setShowShadowCam(v => !v)}>
-                      Shadow Cam Frustum {showShadowCam ? '켜짐' : '꺼짐'}
+                      {t('gfx.shadowCamFrustum')} {showShadowCam ? t('common.on') : t('common.off')}
                     </ToggleBtn>
                   )}
                 </>
               )}
 
               <ToggleBtn active={showHelper} onClick={() => setShowHelper(v => !v)}>
-                Light Helper {showHelper ? '켜짐' : '꺼짐'}
+                {t('gfx.lightHelper')} {showHelper ? t('common.on') : t('common.off')}
               </ToggleBtn>
             </div>
           </div>
         </div>
 
         {/* ── Right: 3D view ───────────────────────────────────────────── */}
-        <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <ToggleBtn active={showVertices} onClick={() => setShowVertices(v => !v)}>
-              정점 번호 {showVertices ? '켜짐' : '꺼짐'}
+              {t('gfx.vertexNumbers')} {showVertices ? t('common.on') : t('common.off')}
             </ToggleBtn>
             <ToggleBtn active={showNormals} onClick={() => setShowNormals(v => !v)}>
-              노말 벡터 {showNormals ? '켜짐' : '꺼짐'}
+              {t('gfx.normalVectors')} {showNormals ? t('common.on') : t('common.off')}
             </ToggleBtn>
             <span style={{ fontSize: 12, color: '#aaaaaa' }}>
               X <span style={{ color: '#cc2222' }}>■</span>{' '}
@@ -273,7 +305,12 @@ export default function GraphicsCalculator() {
             </span>
           </div>
 
-          <div className="calc-card" style={{ height: 580, overflow: 'hidden', padding: 0, position: 'sticky', top: 56 }}>
+          <div className="calc-card" style={{
+            height: narrow ? '65vh' : 'min(580px, calc(100vh - 72px))',
+            minHeight: 340,
+            overflow: 'hidden', padding: 0,
+            ...(narrow ? {} : { position: 'sticky', top: 56 }),
+          }}>
             <ThreeScene
               modelMat={M}
               showVertices={showVertices}
@@ -286,12 +323,12 @@ export default function GraphicsCalculator() {
           {/* Shadow map info */}
           {shadowEnabled && (
             <div className="calc-card" style={{ padding: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Shadow Mapping 원리</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('gfx.shadowPrinciple')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, fontSize: 12 }}>
                 {[
-                  { label: 'Basic', desc: '광원에서 depth buffer 생성 → 픽셀 depth 비교', color: '#888888' },
-                  { label: 'PCF', desc: '주변 샘플 평균으로 경계 부드럽게', color: '#16a34a' },
-                  { label: 'PCF Soft', desc: 'PCF + Poisson disk 샘플링으로 최대 블러', color: '#15803d' },
+                  { label: 'Basic', desc: t('gfx.basicDesc'), color: '#888888' },
+                  { label: 'PCF', desc: t('gfx.pcfDesc'), color: '#16a34a' },
+                  { label: 'PCF Soft', desc: t('gfx.pcfSoftDesc'), color: '#15803d' },
                 ].map(({ label, desc, color }) => (
                   <div key={label} style={{ padding: '8px 10px', borderRadius: 6, background: '#f9f9f9', border: '1px solid #e0e0e0' }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color, marginBottom: 4 }}>{label}</div>
@@ -300,18 +337,18 @@ export default function GraphicsCalculator() {
                 ))}
               </div>
               <div style={{ marginTop: 10, fontSize: 11, color: '#888888', lineHeight: 1.6 }}>
-                <b>Shadow Bias</b>: 자기 자신에 그림자가 생기는 acne 방지 (-0.0005)<br/>
-                <b>Map Size</b>: 텍스처 해상도 — 512(빠름) → 2048(선명)<br/>
-                {lightType === 'directional' && <><b>Shadow Camera</b>: Orthographic frustum이 커버하는 영역이 곧 그림자 범위</>}
-                {lightType === 'spot' && <><b>Shadow Camera</b>: Perspective frustum (각도 = SpotLight angle)</>}
-                {lightType === 'point' && <><b>Cube Shadow Map</b>: 6면 큐브맵으로 전방향 그림자 — 가장 비쌈</>}
+                <b>Shadow Bias</b>: {t('gfx.shadowBiasNote')}<br/>
+                <b>Map Size</b>: {t('gfx.mapSizeNote')}<br/>
+                {lightType === 'directional' && <><b>Shadow Camera</b>: {t('gfx.shadowCamDir')}</>}
+                {lightType === 'spot' && <><b>Shadow Camera</b>: {t('gfx.shadowCamSpot')}</>}
+                {lightType === 'point' && <><b>Cube Shadow Map</b>: {t('gfx.cubeShadow')}</>}
               </div>
             </div>
           )}
 
           {showVertices && (
             <div className="calc-card" style={{ padding: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>정점 좌표 (로컬 공간)</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('gfx.vertexCoords')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
                 {[['0','(-0.5,-0.5,-0.5)'],['1','(0.5,-0.5,-0.5)'],['2','(0.5,0.5,-0.5)'],['3','(-0.5,0.5,-0.5)'],
                   ['4','(-0.5,-0.5,0.5)'], ['5','(0.5,-0.5,0.5)'], ['6','(0.5,0.5,0.5)'],  ['7','(-0.5,0.5,0.5)']
@@ -326,7 +363,7 @@ export default function GraphicsCalculator() {
 
           {showNormals && (
             <div className="calc-card" style={{ padding: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>면 노말 벡터</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('gfx.faceNormals')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
                 {[['+X','(1,0,0)','#cc2222'],['-X','(-1,0,0)','#cc2222'],
                   ['+Y','(0,1,0)','#22aa22'],['-Y','(0,-1,0)','#22aa22'],

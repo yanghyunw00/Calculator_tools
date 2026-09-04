@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as math from 'mathjs';
+import { useLang } from '../../i18n/useLang';
 
 function evalAt(expr, varName, val) {
   try {
@@ -20,6 +21,7 @@ function numericalDeriv(expr, varName, x) {
 
 export default function CalcGraph2D({ op, expr, variable, lower, upper, limitPoint, limitDir, taylorResult }) {
   const canvasRef = useRef(null);
+  const { t } = useLang();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -201,7 +203,7 @@ export default function CalcGraph2D({ op, expr, variable, lower, upper, limitPoi
     // Legend
     const legends = [{ color: '#2563eb', label: `f(${variable})` }];
     if (op === 'derivative') legends.push({ color: '#16a34a', label: `f'(${variable})` });
-    if (op === 'taylor') legends.push({ color: '#dc2626', label: '테일러 근사' });
+    if (op === 'taylor') legends.push({ color: '#dc2626', label: t('graph2d.taylorApprox') });
     if (op === 'integral') legends.push({ color: '#16a34a', label: `∫ [${lower}, ${upper}]` });
     if (op === 'limit') legends.push({ color: '#f59e0b', label: `x → ${limitPoint}` });
 
@@ -214,7 +216,7 @@ export default function CalcGraph2D({ op, expr, variable, lower, upper, limitPoi
       ctx.font = '11px Arial';
       ctx.fillText(label, lx + 22, ly);
     });
-  }, [op, expr, variable, lower, upper, limitPoint, taylorResult]);
+  }, [op, expr, variable, lower, upper, limitPoint, taylorResult, t]);
 
   return (
     <div style={{ width: '100%', height: 280, borderRadius: 8, overflow: 'hidden', background: '#fafafa' }}>
