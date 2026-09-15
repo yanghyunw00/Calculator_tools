@@ -1,6 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import { translations } from './translations';
+import { conceptStrings } from './concept';
 import { LanguageContext, STORAGE_KEY } from './context';
+
+// UI micro-copy plus the long-form concept namespace, per language.
+const tables = {
+  ko: { ...translations.ko, ...conceptStrings.ko },
+  en: { ...translations.en, ...conceptStrings.en },
+};
 
 function getInitialLang() {
   try {
@@ -27,8 +34,8 @@ export function LanguageProvider({ children }) {
   const toggleLang = useCallback(() => setLangState(l => (l === 'ko' ? 'en' : 'ko')), []);
 
   const t = useCallback((key, params) => {
-    const table = translations[lang] || translations.ko;
-    const raw = table[key] ?? translations.ko[key] ?? key;
+    const table = tables[lang] || tables.ko;
+    const raw = table[key] ?? tables.ko[key] ?? key;
     return interpolate(raw, params);
   }, [lang]);
 
