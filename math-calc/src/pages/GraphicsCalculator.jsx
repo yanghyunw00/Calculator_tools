@@ -136,39 +136,32 @@ export default function GraphicsCalculator() {
        shadowEnabled, shadowMapType, shadowMapSize, showHelper, showShadowCam, spotAngle, spotPenumbra]);
 
   return (
-<<<<<<< HEAD
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', maxWidth: 1100, margin: '0 auto', padding: '0 16px', overflow: 'hidden' }}>
-      <div style={{ padding: '16px 0 10px', flexShrink: 0 }}>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>3D 그래픽스 계산기</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>드래그로 뷰 회전 · 스크롤로 줌</p>
-      </div>
-
-      <div style={{ flex: 1, display: 'flex', gap: 12, overflow: 'hidden' }}>
-        {/* ── Left panel: 독립 스크롤 ──────────────────────────────────── */}
-        <div style={{ flex: '0 0 230px', display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', paddingBottom: 16 }}>
-=======
-    <div style={{ maxWidth: 1100, width: '100%', margin: '0 auto', padding: '28px 16px', display: 'flex', flexDirection: 'column', gap: 20, boxSizing: 'border-box', overflowX: 'hidden' }}>
-      <div>
+    <div style={narrow
+      ? { maxWidth: 1100, width: '100%', margin: '0 auto', padding: '28px 16px', display: 'flex', flexDirection: 'column', gap: 20, boxSizing: 'border-box', overflowX: 'hidden' }
+      : { display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', maxWidth: 1100, margin: '0 auto', padding: '0 16px', overflow: 'hidden', boxSizing: 'border-box' }}>
+      <div style={{ flexShrink: 0, ...(narrow ? {} : { padding: '16px 0 10px' }) }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>{t('gfx.heading')}</h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>{t('gfx.hint')}</p>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>{t('gfx.intro')}</p>
+        {narrow && <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>{t('gfx.intro')}</p>}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: narrow ? 'column' : 'row', gap: 16, alignItems: 'stretch' }}>
-        {/* ── Left panel ──────────────────────────────────────────────── */}
+      {/* Wide: two independently scrolling columns that can never overlap.
+          Narrow: a single stacked column that scrolls with the page. */}
+      <div style={{
+        display: 'flex',
+        flexDirection: narrow ? 'column' : 'row',
+        gap: narrow ? 16 : 12,
+        alignItems: 'stretch',
+        ...(narrow ? {} : { flex: 1, minHeight: 0, overflow: 'hidden' }),
+      }}>
+        {/* ── Left panel ──────────────────────────────────────── */}
         <div style={{
           flex: narrow ? '0 0 auto' : '0 0 230px',
           width: narrow ? '100%' : 230,
           minWidth: 0,
           display: 'flex', flexDirection: 'column', gap: 10,
-          zIndex: 10,
-          ...(narrow ? {} : {
-            position: 'sticky', top: 56, alignSelf: 'flex-start',
-            maxHeight: 'calc(100vh - 72px)',
-            overflowY: 'auto', overflowX: 'hidden',
-          }),
+          ...(narrow ? {} : { overflowY: 'auto', overflowX: 'hidden', paddingBottom: 16 }),
         }}>
->>>>>>> claude/adoring-dijkstra-qz8hn6
 
           {/* Model */}
           <div className="calc-card" style={{ padding: 14 }}>
@@ -301,15 +294,14 @@ export default function GraphicsCalculator() {
           </div>
         </div>
 
-<<<<<<< HEAD
-        {/* ── Right: 3D view (독립 스크롤, 캔버스가 공간 꽉 채움) ──────── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', paddingBottom: 16, minWidth: 0 }}>
+        {/* ── Right: 3D view ──────────────────────────────────── */}
+        <div style={{
+          flex: narrow ? '0 0 auto' : 1,
+          minWidth: 0,
+          display: 'flex', flexDirection: 'column', gap: 10,
+          ...(narrow ? {} : { overflowY: 'auto', paddingBottom: 16 }),
+        }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0 }}>
-=======
-        {/* ── Right: 3D view ───────────────────────────────────────────── */}
-        <div style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
->>>>>>> claude/adoring-dijkstra-qz8hn6
             <ToggleBtn active={showVertices} onClick={() => setShowVertices(v => !v)}>
               {t('gfx.vertexNumbers')} {showVertices ? t('common.on') : t('common.off')}
             </ToggleBtn>
@@ -323,16 +315,9 @@ export default function GraphicsCalculator() {
             </span>
           </div>
 
-<<<<<<< HEAD
-          <div className="calc-card" style={{ flex: '1 1 0', minHeight: 420, overflow: 'hidden', padding: 0 }}>
-=======
-          <div className="calc-card" style={{
-            height: narrow ? '65vh' : 'min(580px, calc(100vh - 72px))',
-            minHeight: 340,
-            overflow: 'hidden', padding: 0,
-            ...(narrow ? {} : { position: 'sticky', top: 56 }),
-          }}>
->>>>>>> claude/adoring-dijkstra-qz8hn6
+          <div className="calc-card" style={narrow
+            ? { height: '65vh', minHeight: 340, overflow: 'hidden', padding: 0 }
+            : { flex: '1 1 0', minHeight: 420, overflow: 'hidden', padding: 0 }}>
             <ThreeScene
               modelMat={M}
               showVertices={showVertices}
@@ -398,27 +383,24 @@ export default function GraphicsCalculator() {
               </div>
             </div>
           )}
-        </div>
 
-        {/* Content section */}
-        <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12, flexShrink: 0 }}>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111' }}>3D 그래픽스 수학 개념</h2>
-          <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.8 }}>
-            3D 그래픽스 파이프라인에서 MVP(Model-View-Projection) 행렬은 3D 물체를 2D 화면에 투영하는 핵심 변환입니다.
-            <strong> Model 행렬</strong>은 물체의 위치·회전·크기를, <strong>View 행렬</strong>은 카메라 시점을, <strong>Projection 행렬</strong>은 원근 투영을 담당합니다.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 10 }}>
-            {[
-              { title: '조명 모델', desc: 'Directional(태양광), Point(전구), Spot(손전등) 세 가지 광원 타입을 실시간으로 전환하며 효과를 비교할 수 있습니다.' },
-              { title: '그림자 매핑', desc: '광원에서 깊이 버퍼를 생성해 그림자를 렌더링합니다. Basic·PCF·PCF Soft 세 가지 품질을 선택할 수 있습니다.' },
-              { title: 'Frustum (시야체)', desc: 'FOV, Near/Far 평면, Aspect Ratio로 정의되는 절두체입니다. 이 영역 밖의 물체는 렌더링되지 않습니다(클리핑).' },
-              { title: '법선 벡터', desc: '각 면에 수직인 벡터로 조명 계산의 핵심입니다. 법선 방향과 광원 방향의 내적으로 밝기를 결정합니다.' },
-            ].map(({ title, desc }) => (
-              <div key={title} style={{ padding: '10px 12px', borderRadius: 6, background: '#f9f9f9', border: '1px solid #eee' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', marginBottom: 4 }}>{title}</div>
-                <div style={{ fontSize: 12, color: '#666', lineHeight: 1.6 }}>{desc}</div>
-              </div>
-            ))}
+          {/* Concept section — scrolls below the canvas inside the right column */}
+          <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12, flexShrink: 0 }}>
+            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111' }}>{t('gfx.concept.heading')}</h2>
+            <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.8 }}>{t('gfx.concept.intro')}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 10 }}>
+              {[
+                { title: t('gfx.concept.lightTitle'),   desc: t('gfx.concept.lightDesc') },
+                { title: t('gfx.concept.shadowTitle'),  desc: t('gfx.concept.shadowDesc') },
+                { title: t('gfx.concept.frustumTitle'), desc: t('gfx.concept.frustumDesc') },
+                { title: t('gfx.concept.normalTitle'),  desc: t('gfx.concept.normalDesc') },
+              ].map(({ title, desc }) => (
+                <div key={title} style={{ padding: '10px 12px', borderRadius: 6, background: '#f9f9f9', border: '1px solid #eee' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', marginBottom: 4 }}>{title}</div>
+                  <div style={{ fontSize: 12, color: '#666', lineHeight: 1.6 }}>{desc}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
