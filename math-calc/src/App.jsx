@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
-=======
 import { HashRouter, Routes, Route } from 'react-router-dom';
->>>>>>> claude/adoring-dijkstra-qz8hn6
+import { lazy, Suspense } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
