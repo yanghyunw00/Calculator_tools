@@ -1,22 +1,27 @@
+import { useLang } from '../../i18n/useLang';
+
 const LABELS = ['A', 'B', 'C', 'D'];
 
 const singleOps = [
-  { id: 'det', label: '행렬식' },
-  { id: 'inv', label: '역행렬' },
-  { id: 'transpose', label: '전치' },
-  { id: 'rank', label: '계수(rank)' },
-  { id: 'power', label: '거듭제곱 Aⁿ' },
-  { id: 'lu', label: 'LU 분해' },
-  { id: 'eigen', label: '고유값/벡터' },
-  { id: 'svd', label: 'SVD' },
+  { id: 'det', key: 'op.det' },
+  { id: 'inv', key: 'op.inv' },
+  { id: 'transpose', key: 'op.transpose' },
+  { id: 'rank', key: 'op.rank' },
+  { id: 'power', key: 'op.power' },
+  { id: 'lu', key: 'op.lu' },
+  { id: 'eigen', key: 'op.eigen' },
+  { id: 'svd', key: 'op.svd' },
 ];
 
 export default function MatrixOps({ activeOp, onSelect, mode = 'single', matrixCount = 2 }) {
-  const ops = mode === 'single' ? singleOps : [
-    { id: 'multiply', label: LABELS.slice(0, matrixCount).join(' × ') },
-    { id: 'add',      label: LABELS.slice(0, matrixCount).join(' + ') },
-    { id: 'subtract', label: LABELS.slice(0, matrixCount).join(' − ') },
-  ];
+  const { t } = useLang();
+  const ops = mode === 'single'
+    ? singleOps.map(o => ({ id: o.id, label: t(o.key) }))
+    : [
+        { id: 'multiply', label: LABELS.slice(0, matrixCount).join(' × ') },
+        { id: 'add',      label: LABELS.slice(0, matrixCount).join(' + ') },
+        { id: 'subtract', label: LABELS.slice(0, matrixCount).join(' − ') },
+      ];
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
       {ops.map(op => (

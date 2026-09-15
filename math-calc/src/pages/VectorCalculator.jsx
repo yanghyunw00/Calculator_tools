@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { BlockMath } from '../components/KaTeX';
 import VectorScene from '../components/vector/VectorScene';
+import { useLang } from '../i18n/useLang';
 
 function parseVec(inputs) {
   return inputs.map(v => {
@@ -18,9 +19,9 @@ function vecToLatex(v) {
   return `\\begin{pmatrix} ${v.map(fmt).join(' \\\\ ')} \\end{pmatrix}`;
 }
 
-const VecInput = ({ label, color, values, onChange }) => (
+const VecInput = ({ color, values, onChange, title }) => (
   <div className="calc-card" style={{ padding: 16, flex: '1 1 200px' }}>
-    <div style={{ fontSize: 13, fontWeight: 700, color, marginBottom: 12 }}>벡터 {label}</div>
+    <div style={{ fontSize: 13, fontWeight: 700, color, marginBottom: 12 }}>{title}</div>
     {['x', 'y', 'z'].map((axis, i) => (
       <div key={axis} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <span style={{ fontSize: 13, fontFamily: 'monospace', color: '#555', minWidth: 14 }}>{axis}</span>
@@ -42,9 +43,11 @@ const VecInput = ({ label, color, values, onChange }) => (
 );
 
 export default function VectorCalculator() {
+  const { t } = useLang();
+
   useEffect(() => {
-    document.title = '벡터 계산기 — 내적·외적·3D 시각화 | MathCalc';
-  }, []);
+    document.title = t('vec.doc.title');
+  }, [t]);
 
   const [vA, setVA] = useState(['1', '0', '0']);
   const [vB, setVB] = useState(['0', '1', '0']);
@@ -66,10 +69,10 @@ export default function VectorCalculator() {
         magA, magB, cosTheta, angleDeg,
         latex: `\\mathbf{a} \\cdot \\mathbf{b} = ${vecToLatex(a)}^T ${vecToLatex(b)} = ${fmt(dot)}`,
         steps: [
-          { label: 'Step 1: 벡터', latex: `\\mathbf{a} = ${vecToLatex(a)}, \\quad \\mathbf{b} = ${vecToLatex(b)}` },
-          { label: 'Step 2: 내적 공식  a·b = a₁b₁ + a₂b₂ + a₃b₃', latex: `= (${fmt(a[0])})(${fmt(b[0])}) + (${fmt(a[1])})(${fmt(b[1])}) + (${fmt(a[2])})(${fmt(b[2])})` },
-          { label: 'Step 3: 결과', latex: `\\mathbf{a} \\cdot \\mathbf{b} = ${fmt(dot)}` },
-          ...(angleDeg !== null ? [{ label: 'Step 4: 사잇각  θ = arccos(a·b / |a||b|)', latex: `\\theta = \\arccos\\left(\\frac{${fmt(dot)}}{${fmt(magA)} \\times ${fmt(magB)}}\\right) = ${fmt(angleDeg)}^\\circ` }] : []),
+          { label: t('vec.step.vectors'), latex: `\\mathbf{a} = ${vecToLatex(a)}, \\quad \\mathbf{b} = ${vecToLatex(b)}` },
+          { label: t('vec.step.dotFormula'), latex: `= (${fmt(a[0])})(${fmt(b[0])}) + (${fmt(a[1])})(${fmt(b[1])}) + (${fmt(a[2])})(${fmt(b[2])})` },
+          { label: t('vec.step.result3'), latex: `\\mathbf{a} \\cdot \\mathbf{b} = ${fmt(dot)}` },
+          ...(angleDeg !== null ? [{ label: t('vec.step.angle'), latex: `\\theta = \\arccos\\left(\\frac{${fmt(dot)}}{${fmt(magA)} \\times ${fmt(magB)}}\\right) = ${fmt(angleDeg)}^\\circ` }] : []),
         ],
       };
     } else {
@@ -84,30 +87,30 @@ export default function VectorCalculator() {
         mag,
         latex: `\\mathbf{a} \\times \\mathbf{b} = ${vecToLatex(cross)}`,
         steps: [
-          { label: 'Step 1: 벡터', latex: `\\mathbf{a} = ${vecToLatex(a)}, \\quad \\mathbf{b} = ${vecToLatex(b)}` },
-          { label: 'Step 2: 외적 공식 (행렬식 전개)', latex: `\\mathbf{a} \\times \\mathbf{b} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ ${fmt(a[0])} & ${fmt(a[1])} & ${fmt(a[2])} \\\\ ${fmt(b[0])} & ${fmt(b[1])} & ${fmt(b[2])} \\end{vmatrix}` },
-          { label: 'Step 3: 각 성분 계산', latex: `i: (${fmt(a[1])})(${fmt(b[2])}) - (${fmt(a[2])})(${fmt(b[1])}) = ${fmt(cx)}` },
+          { label: t('vec.step.vectors'), latex: `\\mathbf{a} = ${vecToLatex(a)}, \\quad \\mathbf{b} = ${vecToLatex(b)}` },
+          { label: t('vec.step.crossFormula'), latex: `\\mathbf{a} \\times \\mathbf{b} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ ${fmt(a[0])} & ${fmt(a[1])} & ${fmt(a[2])} \\\\ ${fmt(b[0])} & ${fmt(b[1])} & ${fmt(b[2])} \\end{vmatrix}` },
+          { label: t('vec.step.components'), latex: `i: (${fmt(a[1])})(${fmt(b[2])}) - (${fmt(a[2])})(${fmt(b[1])}) = ${fmt(cx)}` },
           { label: '', latex: `j: (${fmt(a[2])})(${fmt(b[0])}) - (${fmt(a[0])})(${fmt(b[2])}) = ${fmt(cy)}` },
           { label: '', latex: `k: (${fmt(a[0])})(${fmt(b[1])}) - (${fmt(a[1])})(${fmt(b[0])}) = ${fmt(cz)}` },
-          { label: '결과', latex: `\\mathbf{a} \\times \\mathbf{b} = ${vecToLatex(cross)}, \\quad |\\mathbf{a} \\times \\mathbf{b}| = ${fmt(mag)}` },
+          { label: t('vec.step.result'), latex: `\\mathbf{a} \\times \\mathbf{b} = ${vecToLatex(cross)}, \\quad |\\mathbf{a} \\times \\mathbf{b}| = ${fmt(mag)}` },
         ],
       };
     }
-  }, [a, b, op]);
+  }, [a, b, op, t]);
 
   const crossForScene = result.type === 'cross' ? result.value : null;
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>벡터 계산기</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>3D 내적 · 외적 · 실시간 시각화</p>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>두 3D 벡터의 내적(dot product)과 외적(cross product)을 단계별로 계산하고 결과를 3D 공간에서 시각화합니다.</p>
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111111' }}>{t('vec.heading')}</h1>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888888' }}>{t('vec.sub')}</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#aaaaaa', lineHeight: 1.6 }}>{t('vec.intro')}</p>
       </div>
 
       {/* Op toggle */}
       <div style={{ display: 'flex', gap: 6 }}>
-        {[['cross', '외적 (A × B)'], ['dot', '내적 (A · B)']].map(([o, label]) => (
+        {[['cross', t('vec.op.cross')], ['dot', t('vec.op.dot')]].map(([o, label]) => (
           <button key={o} onClick={() => setOp(o)}
             style={{
               padding: '7px 16px', borderRadius: 6, fontSize: 13,
@@ -124,12 +127,12 @@ export default function VectorCalculator() {
 
       {/* Vector inputs */}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <VecInput label="A" color="#16a34a" values={vA} onChange={setVA} />
-        <VecInput label="B" color="#2563eb" values={vB} onChange={setVB} />
+        <VecInput color="#16a34a" values={vA} onChange={setVA} title={t('vec.vectorLabel', { name: 'A' })} />
+        <VecInput color="#2563eb" values={vB} onChange={setVB} title={t('vec.vectorLabel', { name: 'B' })} />
 
         {/* Info panel */}
         <div className="calc-card" style={{ padding: 16, flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#444', marginBottom: 4 }}>벡터 크기</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#444', marginBottom: 4 }}>{t('vec.magnitude')}</div>
           {[['A', a, '#16a34a'], ['B', b, '#2563eb']].map(([label, v, color]) => {
             const mag = Math.sqrt(v.reduce((s, x) => s + x*x, 0));
             return (
@@ -141,13 +144,13 @@ export default function VectorCalculator() {
           {result.type === 'cross' && (
             <div style={{ fontSize: 13, color: '#555', borderTop: '1px solid #eee', paddingTop: 8, marginTop: 4 }}>
               <span style={{ color: '#dc2626', fontWeight: 700 }}>|A×B|</span> = {fmt(result.mag)}
-              <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>(평행사변형 넓이)</div>
+              <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>{t('vec.parallelogramArea')}</div>
             </div>
           )}
           {result.type === 'dot' && result.angleDeg !== null && (
             <div style={{ fontSize: 13, color: '#555', borderTop: '1px solid #eee', paddingTop: 8, marginTop: 4 }}>
               <span style={{ fontWeight: 700 }}>θ</span> = {fmt(result.angleDeg)}°
-              <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>(두 벡터의 사잇각)</div>
+              <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>{t('vec.angleBetween')}</div>
             </div>
           )}
         </div>
@@ -155,12 +158,12 @@ export default function VectorCalculator() {
 
       {/* Result latex */}
       <div className="calc-card" style={{ padding: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#16a34a', marginBottom: 12 }}>결과</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#16a34a', marginBottom: 12 }}>{t('common.result')}</div>
         <div style={{ overflowX: 'auto', textAlign: 'center' }}>
           <BlockMath math={result.latex} />
         </div>
         <div style={{ marginTop: 16, borderTop: '1px solid #f0f0f0', paddingTop: 14 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#888', marginBottom: 8 }}>풀이 과정</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#888', marginBottom: 8 }}>{t('vec.working')}</div>
           {result.steps.map((s, i) => (
             <div key={i} style={{ marginBottom: 6 }}>
               {s.label && <div style={{ fontSize: 11, color: '#aaa', marginBottom: 2 }}>{s.label}</div>}
@@ -194,14 +197,14 @@ export default function VectorCalculator() {
       {/* 3D Visualization */}
       <div className="calc-card" style={{ padding: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 8 }}>
-          3D 시각화
-          <span style={{ fontSize: 11, fontWeight: 400, color: '#aaa', marginLeft: 8 }}>드래그로 회전</span>
+          {t('vec.viz')}
+          <span style={{ fontSize: 11, fontWeight: 400, color: '#aaa', marginLeft: 8 }}>{t('vec.dragRotate')}</span>
         </div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
           {[['A', '#16a34a'], ['B', '#2563eb'], ...(crossForScene ? [['A×B', '#dc2626']] : [])].map(([label, color]) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#555' }}>
               <div style={{ width: 12, height: 12, borderRadius: '50%', background: color }} />
-              벡터 {label}
+              {t('vec.vectorLabel', { name: label })}
             </div>
           ))}
         </div>

@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+=======
+import { HashRouter, Routes, Route } from 'react-router-dom';
+>>>>>>> claude/adoring-dijkstra-qz8hn6
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -20,7 +24,7 @@ const RouteFallback = () => (
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#ffffff' }}>
         <Navbar />
         <main style={{ flex: 1 }}>
@@ -37,6 +41,6 @@ export default function App() {
         </main>
         <Footer />
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

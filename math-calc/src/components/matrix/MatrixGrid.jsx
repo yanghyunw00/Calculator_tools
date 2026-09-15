@@ -1,4 +1,7 @@
+import { useLang } from '../../i18n/useLang';
+
 export default function MatrixGrid({ label, grid, onChange }) {
+  const { t } = useLang();
   const rows = grid.length;
   const cols = grid[0].length;
 
@@ -24,9 +27,9 @@ export default function MatrixGrid({ label, grid, onChange }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
         <span style={{ fontWeight: 700, fontSize: 15, color: '#111111' }}>{label}</span>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          <button onClick={fillRandom} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>랜덤</button>
-          <button onClick={fillIdentity} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>단위행렬</button>
-          <button onClick={fillZero} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>초기화</button>
+          <button onClick={fillRandom} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>{t('grid.random')}</button>
+          <button onClick={fillIdentity} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>{t('grid.identity')}</button>
+          <button onClick={fillZero} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>{t('grid.zero')}</button>
         </div>
       </div>
 
@@ -67,7 +70,7 @@ export default function MatrixGrid({ label, grid, onChange }) {
           style={{ width: 26, height: 26, padding: 0, textAlign: 'center', fontSize: 16, lineHeight: 1 }}>+</button>
         <button onClick={removeCol} disabled={cols <= 1} className="btn-secondary"
           style={{ width: 26, height: 26, padding: 0, textAlign: 'center', fontSize: 16, lineHeight: 1 }}>−</button>
-        <span style={{ fontSize: 12, color: '#888888' }}>열</span>
+        <span style={{ fontSize: 12, color: '#888888' }}>{t('grid.col')}</span>
       </div>
     </div>
   );
