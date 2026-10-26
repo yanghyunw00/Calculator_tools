@@ -13,6 +13,7 @@ export const translations = {
     'common.on': '켜짐',
     'common.off': '꺼짐',
     'common.withSteps': '단계별 풀이 포함',
+    'common.loading': '불러오는 중...',
 
     // ── Navbar ──────────────────────────────────────────────
     'nav.home': 'Home',
@@ -251,6 +252,7 @@ export const translations = {
     'common.on': 'On',
     'common.off': 'Off',
     'common.withSteps': 'Step-by-step solutions included',
+    'common.loading': 'Loading...',
 
     // ── Navbar ──────────────────────────────────────────────
     'nav.home': 'Home',

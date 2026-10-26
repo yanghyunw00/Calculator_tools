@@ -296,19 +296,19 @@ export default function CalcCalculator() {
 
       {/* Content section */}
       <div className="calc-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111' }}>미적분학 핵심 개념</h2>
+        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111' }}>{t('calc.concept.heading')}</h2>
         <p style={{ margin: 0, fontSize: 13, color: '#555', lineHeight: 1.8 }}>
-          미적분학(Calculus)은 변화와 누적을 다루는 수학의 핵심 분야입니다.
-          <strong> 도함수(Derivative)</strong>는 함수의 순간 변화율로, f′(x) = lim(h→0) [f(x+h)−f(x)]/h로 정의됩니다.
-          <strong> 적분(Integral)</strong>은 곡선 아래 넓이를 구하는 연산으로, 미적분학의 기본정리에 의해 미분의 역연산입니다.
+          {t('calc.concept.introLead')}
+          <strong> {t('calc.concept.derivTerm')}</strong>{t('calc.concept.derivDesc')}
+          <strong> {t('calc.concept.intTerm')}</strong>{t('calc.concept.intDesc')}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 10 }}>
           {[
-            { title: '도함수 f′(x)', desc: '함수의 순간 변화율. 2차·3차 고계 도함수도 지원합니다. 물리학의 속도·가속도 계산에 활용됩니다.' },
-            { title: '편미분 ∂/∂x', desc: '다변수 함수에서 특정 변수에 대한 도함수. 기울기(gradient) 계산의 기초입니다.' },
-            { title: '정적분 ∫', desc: '상·하한 입력 시 정적분, 비워두면 부정적분(원시함수)을 구합니다.' },
-            { title: '극한 lim', desc: '함수가 특정 점에서 수렴하는지 판별합니다. 좌·우극한 및 양방향 극한을 지원합니다.' },
-            { title: '테일러 급수', desc: '함수를 전개 점 주변 다항식으로 근사합니다. 항 수를 조절해 근사 오차를 확인할 수 있습니다.' },
+            { title: t('calc.concept.derivCardTitle'), desc: t('calc.concept.derivCardDesc') },
+            { title: t('calc.concept.partialTitle'), desc: t('calc.concept.partialDesc') },
+            { title: t('calc.concept.integralTitle'), desc: t('calc.concept.integralDesc') },
+            { title: t('calc.concept.limitTitle'), desc: t('calc.concept.limitDesc') },
+            { title: t('calc.concept.taylorTitle'), desc: t('calc.concept.taylorDesc') },
           ].map(({ title, desc }) => (
             <div key={title} style={{ padding: '10px 12px', borderRadius: 6, background: '#f9f9f9', border: '1px solid #eee' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#16a34a', marginBottom: 4 }}>{title}</div>
@@ -317,7 +317,7 @@ export default function CalcCalculator() {
           ))}
         </div>
         <p style={{ margin: 0, fontSize: 12, color: '#888', lineHeight: 1.7 }}>
-          입력 예시: <code>x^3 + 2*x^2 - 5*x + 1</code> · <code>sin(x) * exp(-x)</code> · <code>log(x^2 + 1)</code>. 결과는 그래프로 시각화됩니다.
+          {t('calc.concept.exampleLabel')} <code>x^3 + 2*x^2 - 5*x + 1</code> · <code>sin(x) * exp(-x)</code> · <code>log(x^2 + 1)</code>. {t('calc.concept.vizNote')}
         </p>
       </div>
 

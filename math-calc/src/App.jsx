@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
+import { useLang } from './i18n/useLang';
 
 // Route-level code splitting: heavy deps (three.js, mathjs, katex) load
 // only when the route that needs them is visited.
@@ -12,11 +13,14 @@ const GraphicsCalculator = lazy(() => import('./pages/GraphicsCalculator'));
 const VectorCalculator   = lazy(() => import('./pages/VectorCalculator'));
 const PrivacyPolicy      = lazy(() => import('./pages/PrivacyPolicy'));
 
-const RouteFallback = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '80px 16px', color: '#888888', fontSize: 13 }}>
-    <span className="spinner" /> 불러오는 중...
-  </div>
-);
+const RouteFallback = () => {
+  const { t } = useLang();
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '80px 16px', color: '#888888', fontSize: 13 }}>
+      <span className="spinner" /> {t('common.loading')}
+    </div>
+  );
+};
 
 export default function App() {
   return (
